@@ -139,6 +139,7 @@ class Corr2PtUNet(Corr2PtConv):
         self.encoder_refine_convs = nn.ModuleList()
         self.decoder_reduce_convs = nn.ModuleList()
         self.decoder_upsample_convs = nn.ModuleList()
+        self.temp_mlps = nn.ModuleList()
 
         self.pool = nn.MaxPool2d(kernel_size=2, stride=2, dilation=1)
 
@@ -175,6 +176,15 @@ class Corr2PtUNet(Corr2PtConv):
                     )
                 )
 
+                self.temp_mlps.append(
+                    nn.Sequential(
+                        nn.Linear(1, 2 ** (self.levels - i - 1)),
+                        nn.SiLU(),
+                        nn.Linear(2 ** (self.levels - i - 1), 2 ** (self.levels - i - 1)),
+                        nn.SiLU(),
+                    )
+                )
+
             self.decoder_reduce_convs.append(
                 nn.Conv2d(
                     in_channels=2 ** (self.levels - i),
@@ -202,8 +212,11 @@ class Corr2PtUNet(Corr2PtConv):
 
         for i in range(self.levels - 1):
 
+            temp_rescaling = self.temp_mlps[i](temps.unsqueeze(-1).float())
+            skip_connection = torch.einsum("bchw,bc->bchw", out_copies[self.levels - 2 - i], temp_rescaling)
+
             out = torch.cat(
-                (self.decoder_upsample_convs[i](out), out_copies[self.levels - 2 - i]),
+                (self.decoder_upsample_convs[i](out), skip_connection),
                 dim=-3,
             )  # dim -3 is channels
             out = F.silu(
