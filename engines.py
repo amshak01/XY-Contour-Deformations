@@ -3,7 +3,7 @@ from livelossplot import PlotLosses
 
 
 def train(model, device, loader, optimizer, epochs, scheduler=None):
-    """_summary_
+    """Trains a neural network model on a given dataset
 
     Args:
         model (nn): torch neural network to train

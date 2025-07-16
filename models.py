@@ -34,12 +34,12 @@ class ShiftOptimizer(nn.Module):
             Tensor: tensor of size (N,) containing the deformed observable for each configuration
         """
 
-        shifted = lats + 1j * self.shifts
+        shifted = lats + 1j * self.shifts  # Apply the vertical shift deformation
         betas = 1 / temps
 
         return self.obs(shifted, *obs_args) * torch.exp(
             -betas * (self.hamiltonian(shifted) - self.hamiltonian(lats))
-        )
+        )  # Compute and return the deformed observable
 
 
 class Corr2PtConv(ShiftOptimizer):
@@ -87,6 +87,7 @@ class Corr2PtConv1Layer(Corr2PtConv):
 
         super().__init__(lat_size, hamiltonian)
 
+        # Single convolution layer
         self.conv = nn.Conv2d(
             in_channels=1,
             out_channels=1,
@@ -129,15 +130,32 @@ class Corr2PtUNet(Corr2PtConv):
 
         super().__init__(lat_size, hamiltonian)
 
-        self.levels = int(np.log2(lat_size) - np.log2(min_size)) + 1
+        self.levels = (
+            int(np.log2(lat_size) - np.log2(min_size)) + 1
+        )  # Number of levels in the U-Net
+        assert self.levels > 0, "The lattice size must be larger than the minimum size."
 
-        self.encoder_expand_convs = nn.ModuleList()
-        self.encoder_refine_convs = nn.ModuleList()
-        self.decoder_reduce_convs = nn.ModuleList()
-        self.decoder_upsample_convs = nn.ModuleList()
-        self.temp_mlps = nn.ModuleList()
+        self.encoder_expand_convs = nn.ModuleList()  # Expands the number of channels
 
-        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, dilation=1)
+        self.encoder_refine_convs = (
+            nn.ModuleList()
+        )  # Refines the features in the expanded channels
+
+        self.decoder_reduce_convs = (
+            nn.ModuleList()
+        )  # Reduces the number of channels after upsampling
+
+        self.decoder_upsample_convs = (
+            nn.ModuleList()
+        )  # Upsamples the features to the next level
+
+        self.temp_channel_rescaling = (
+            nn.ModuleList()
+        )  # MLPs to incorporate temperature in the skip connections
+
+        self.pool = nn.MaxPool2d(
+            kernel_size=2, stride=2, dilation=1
+        )  # Max pooling layer
 
         for i in range(self.levels):
 
@@ -172,15 +190,14 @@ class Corr2PtUNet(Corr2PtConv):
                     )
                 )
 
-                self.temp_mlps.append(
+                # MLP accepts scalar and outputs per-channel scaling factors and biases
+                self.temp_channel_rescaling.append(
                     nn.Sequential(
                         nn.Linear(1, 2 ** (self.levels - i - 1)),
                         nn.SiLU(),
-                        nn.Linear(
-                            2 ** (self.levels - i - 1), 2 ** (self.levels - i - 1)
-                        ),
+                        nn.Linear(2 ** (self.levels - i - 1), 2 ** (self.levels - i)),
                         nn.SiLU(),
-                    )
+                    )  # Output is double the number of channels -- chunk into scale and bias
                 )
 
             self.decoder_reduce_convs.append(
@@ -198,6 +215,7 @@ class Corr2PtUNet(Corr2PtConv):
         out = self.get_masks(lats, x_seps, y_seps)
         out_copies = []
 
+        # Encoding path
         for i in range(self.levels):
 
             out = F.silu(
@@ -208,23 +226,34 @@ class Corr2PtUNet(Corr2PtConv):
                 out_copies.append(out.clone())
                 out = self.pool(out)
 
+        # Decoding path with skip connections
         for i in range(self.levels - 1):
 
-            temp_rescaling = self.temp_mlps[i](temps.unsqueeze(-1).float())
-            skip_connection = torch.einsum(
-                "bchw,bc->bchw", out_copies[self.levels - 2 - i], temp_rescaling
+            temp_rescaling, temp_bias = self.temp_channel_rescaling[i](
+                temps.unsqueeze(
+                    -1
+                ).float()  # Unsqueeze to add singleton dimension for MLP input
+            ).chunk(
+                2, dim=-1
+            )  # Split into scaling and bias
+
+            skip_connection = (
+                out_copies[self.levels - 2 - i] * temp_rescaling[:, :, None, None]
+                + temp_bias[:, :, None, None]
             )
 
             out = torch.cat(
                 (self.decoder_upsample_convs[i](out), skip_connection),
                 dim=-3,
-            )  # dim -3 is channels
+            )  # dim -3 is channels -- concatenate along channels
+
             out = F.silu(
                 self.encoder_refine_convs[self.levels - 2 - i](
                     F.silu(self.decoder_reduce_convs[i](out))
                 )
             )
 
+        # Final output layer
         self.shifts = self.decoder_reduce_convs[-1](out).squeeze(1)
 
         return self.deformed(temps, lats, x_seps, y_seps)

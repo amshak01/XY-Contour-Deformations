@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 
 class Corr2PtDataset(torch.utils.data.Dataset):
     def __init__(self, lattices, temperatures, x_separations, y_separations):
-        """
+        """Class for storing lattice configurations and their corresponding temperatures and separations
         Args:
             lattices (Tensor): Tensor of size (N,L,L) containing N LxL lattice configs
             temperatures (Tensor): array of length N containing temperature labels for each lattice config
