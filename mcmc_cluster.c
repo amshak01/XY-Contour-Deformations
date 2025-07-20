@@ -3,12 +3,15 @@
 #include <string.h>
 #include <time.h>
 #include <complex.h>
+#include <math.h>
 
 #define SIZE 64
 #define _USE_MATH_DEFINES
-#define N_ITER 1e4
+#define N_ITER 2e5
 
-#include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 typedef struct Node
 {
@@ -156,7 +159,7 @@ int simulate(double temp, char filename[])
 
     // char obs_filename[20];
     // char corr_filename[20];
-    char lat_filename[20];
+    char lat_filename[64];
     // strcpy(obs_filename, filename);
     // strcpy(corr_filename, filename);
     strcpy(lat_filename, filename);
@@ -168,7 +171,8 @@ int simulate(double temp, char filename[])
     // corr_file = fopen(strcat(corr_filename, "_corrs.csv"), "w+");
 
     FILE* lat_file;
-    lat_file = fopen(strcat(lat_filename, "_configs.bin"), "wb");
+    snprintf(lat_filename, sizeof(lat_filename), "%s_configs.bin", filename);
+    lat_file = fopen(lat_filename, "wb");
 
     // allocate array of rows for lattice and markers
     double *lat = (double *)malloc(SIZE * SIZE * sizeof(double));
@@ -198,11 +202,11 @@ int simulate(double temp, char filename[])
     Stack *marked_stack = malloc(sizeof(Stack));
     initializeStack(marked_stack);
 
-    int calc_step = 5;
+    int calc_step = 10;
     double cluster_tot = 0;
 
     // Monte Carlo outer loop
-    while (sweeps < N_ITER)
+    while (iter < N_ITER)
     {
 
         int cluster_size = 0;
@@ -272,7 +276,7 @@ int simulate(double temp, char filename[])
             }
         }
         // don't calculate observables on every step
-        if (iter % calc_step == 0)
+        if (iter % calc_step == 0 && iter >= N_ITER / 10)
         {
             fwrite(lat, sizeof(double), SIZE*SIZE, lat_file);
         }
@@ -295,7 +299,7 @@ int simulate(double temp, char filename[])
     // fclose(corr_file);
     fclose(lat_file);
 
-    printf("Average Cluster Size of %.5f\nTotal updates: %d\n", (cluster_tot / iter) / (SIZE * SIZE), iter);
+    // printf("Average Cluster Size of %.5f\nTotal updates: %d\n", (cluster_tot / iter) / (SIZE * SIZE), iter);
 
     return iter;
 }
@@ -303,9 +307,9 @@ int simulate(double temp, char filename[])
 int main(void)
 {
 
-    double min_temp = 0.4;
+    double min_temp = 0.8;
     double max_temp = 1.0;
-    int n_temps = 30;
+    int n_temps = 20;
 
     printf("Beginning simulation of XY model on a %dx%d lattice...\n", SIZE, SIZE);
 
@@ -316,8 +320,8 @@ int main(void)
     for (i = 0; i <= n_temps; i++)
     {
         double temp = min_temp + i * (max_temp - min_temp) / n_temps;
-        char write_to[20];
-        sprintf(write_to, "train_configs/L=%d_cluster_T=%1.4f", SIZE, temp);
+        char write_to[64];
+        sprintf(write_to, "test_configs/L=%d_cluster_T=%1.4f", SIZE, temp);
         clock_t begin = clock();
         int iter = simulate(temp, write_to);
         clock_t end = clock();

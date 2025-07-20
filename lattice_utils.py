@@ -1,9 +1,11 @@
 import torch
+from torch.utils.data import Dataset
 import numpy as np
 from matplotlib import pyplot as plt
+import os, re
 
 
-class Corr2PtDataset(torch.utils.data.Dataset):
+class Corr2PtDataset(Dataset):
     def __init__(self, lattices, temperatures, x_separations, y_separations):
         """Class for storing lattice configurations and their corresponding temperatures and separations
         Args:
@@ -32,6 +34,81 @@ class Corr2PtDataset(torch.utils.data.Dataset):
         )
 
 
+class BinArrayDataset(Dataset):
+    def __init__(self, filepath, L, dtype=np.float64, transform=None):
+        self.filepath = filepath
+        self.L = L
+        self.dtype = dtype
+        self.transform = transform
+
+        self._memmap = np.memmap(self.filepath, dtype=self.dtype, mode="r")
+        total_elements = self._memmap.size
+        elements_per_array = L * L
+
+        if total_elements % elements_per_array != 0:
+            raise ValueError("File size is not divisible by LxL. Possibly wrong L or data corruption.")
+
+        self.N = total_elements // elements_per_array
+
+    def __len__(self):
+        return self.N
+
+    def __getitem__(self, idx):
+        start = idx * self.L * self.L
+        end = (idx + 1) * self.L * self.L
+        array = self._memmap[start:end].reshape(self.L, self.L)
+
+        if self.transform:
+            array = self.transform(array)
+
+        return torch.from_numpy(array.copy()).float()  # still casting to float32 for model input
+
+
+class MultiFileBinDataset(Dataset):
+    def __init__(self, folder, min_sep=1, dtype=np.float64, transform=None):
+        self.files = []
+        self.datasets = []
+        self.labels = []
+        self.idx_map = []
+        self.min_sep = min_sep
+
+        for fname in sorted(os.listdir(folder)):
+            if fname.endswith(".bin"):
+                full_path = os.path.join(folder, fname)
+                L, T = extract_L_and_T_from_filename(fname)
+
+                ds = BinArrayDataset(full_path, L=L, dtype=dtype, transform=transform)
+                self.datasets.append(ds)
+                self.labels.extend([T] * len(ds))
+
+                for i in range(len(ds)):
+                    self.idx_map.append((len(self.datasets) - 1, i))
+
+    def __len__(self):
+        return len(self.idx_map)
+
+    def __getitem__(self, idx):
+        file_idx, local_idx = self.idx_map[idx]
+        array = self.datasets[file_idx][local_idx]
+        label = self.labels[idx]
+        L1, L2 = array.size()
+        return (
+            array,
+            torch.tensor(label, dtype=torch.float32),
+            torch.tensor(np.random.randint(self.min_sep, L1 - self.min_sep + 1), dtype=torch.float32),
+            torch.tensor(np.random.randint(self.min_sep, L2 - self.min_sep + 1), dtype=torch.float32),
+        )
+
+
+def extract_L_and_T_from_filename(filename):
+    match = re.search(r"L=(\d+)_cluster_T=([\d.]+)", filename)
+    if not match:
+        raise ValueError(f"Filename format unexpected: {filename}")
+    L = int(match.group(1))
+    T = float(match.group(2))
+    return L, T
+
+
 def load_configs(L, T, dir="configs"):
     """Loads lattice configurations from files with consistent naming schemes
 
@@ -44,38 +121,8 @@ def load_configs(L, T, dir="configs"):
         Tensor: tensor of shape (N,L,L) with N configs of lattice size L
     """
 
-    filename = (
-        dir + "/L=" + str(L) + "_cluster_T=" + "{:.4f}".format(T) + "_configs.bin"
-    )
-    return torch.from_numpy(np.fromfile(filename).reshape(-1, L, L)).to(
-        dtype=torch.cfloat
-    )
-
-
-def identity(vals):
-    """Identity function for reweighting"""
-    return np.ones_like(vals)
-
-
-def reweight(temps, dist=identity):
-    """_summary_
-
-    Args:
-        temps (ndarray): temperatures to reweight
-        dist (function, optional): probability mass distribution. Defaults to uniform.
-
-    Returns:
-        ndarray: calculated weights for sampling
-    """
-
-    unique_temps = np.unique(temps)
-    densities = np.zeros_like(temps)
-
-    for unique_temp in unique_temps:
-        bool_mask = temps == unique_temp
-        densities[bool_mask] = bool_mask.size / np.sum(bool_mask)
-
-    return densities * dist(temps)
+    filename = dir + "/L=" + str(L) + "_cluster_T=" + "{:.4f}".format(T) + "_configs.bin"
+    return torch.from_numpy(np.fromfile(filename).reshape(-1, L, L)).to(dtype=torch.cfloat)
 
 
 def load_temp_range(temps, lat_size, dir="configs"):
@@ -106,6 +153,32 @@ def load_temp_range(temps, lat_size, dir="configs"):
     return (lats, temp_labels)
 
 
+def identity(vals):
+    """Identity function for reweighting"""
+    return np.ones_like(vals)
+
+
+def reweight(temps, dist=identity):
+    """_summary_
+
+    Args:
+        temps (ndarray): temperatures to reweight
+        dist (function, optional): probability mass distribution. Defaults to uniform.
+
+    Returns:
+        ndarray: calculated weights for sampling
+    """
+
+    unique_temps = np.unique(temps)
+    densities = np.zeros_like(temps)
+
+    for unique_temp in unique_temps:
+        bool_mask = temps == unique_temp
+        densities[bool_mask] = bool_mask.size / np.sum(bool_mask)
+
+    return densities * dist(temps)
+
+
 def xy_hamiltonian(lats):
     """Computes the XY hamiltonian for a batch of lattice configurations
 
@@ -116,10 +189,7 @@ def xy_hamiltonian(lats):
         Tensor: tensor of shape (N,) containing the value of the XY hamiltonian for each config
     """
 
-    return (
-        (1 - torch.cos(lats - lats.roll(1, -2)))
-        + (1 - torch.cos(lats - lats.roll(1, -1)))
-    ).sum((-1, -2))
+    return ((1 - torch.cos(lats - lats.roll(1, -2))) + (1 - torch.cos(lats - lats.roll(1, -1)))).sum((-1, -2))
 
 
 def corr_2d(lats, x_seps, y_seps):
@@ -139,9 +209,7 @@ def corr_2d(lats, x_seps, y_seps):
     N = lats.size(0)
     order = torch.arange(0, N)
 
-    return torch.exp(
-        1j * (lats[order, 0, 0] - lats[order, y_seps.long(), x_seps.long()])
-    )
+    return torch.exp(1j * (lats[order, 0, 0] - lats[order, y_seps.long(), x_seps.long()]))
 
 
 def helicity_modulus(lats, T):
@@ -177,9 +245,7 @@ def mean_squared_mag(lats):
 
     L = lats.shape[-1]
     N = L**2
-    mag_squared = (torch.exp(1j * lats).sum((-2, -1))) * (
-        torch.exp(-1j * lats).sum((-2, -1))
-    )
+    mag_squared = (torch.exp(1j * lats).sum((-2, -1))) * (torch.exp(-1j * lats).sum((-2, -1)))
     return mag_squared.numpy().real / (N**2)
 
 
@@ -234,9 +300,7 @@ def acf(samples, length=20):
         ndarray: 1D array of 'floats' of size 'length'
     """
 
-    return np.array(
-        [1] + [np.corrcoef(samples[:-i], samples[i:])[0, 1] for i in range(1, length)]
-    )
+    return np.array([1] + [np.corrcoef(samples[:-i], samples[i:])[0, 1] for i in range(1, length)])
 
 
 def plot_tensor_grid(tensor):

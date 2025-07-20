@@ -62,14 +62,10 @@ class Corr2PtConv(ShiftOptimizer):
             Tensor: tensor of shape (N,1,L,L) containing the N 1-channel masks for input to convolutional layers
         """
 
-        masks = torch.zeros(lats.size(), device=lats.device).unsqueeze(
-            dim=1
-        )  # an extra channel dimension added
+        masks = torch.zeros(lats.size(), device=lats.device).unsqueeze(dim=1)  # an extra channel dimension added
         order = torch.arange(0, lats.size(0))
         masks[order, 0, 0, 0] = 1  # Set the origin to have a value of 1 (source)
-        masks[order, 0, y_seps.long(), x_seps.long()] = (
-            -1
-        )  # Set the other site to be opposite (sink)
+        masks[order, 0, y_seps.long(), x_seps.long()] = -1  # Set the other site to be opposite (sink)
 
         return masks
 
@@ -130,32 +126,20 @@ class Corr2PtUNet(Corr2PtConv):
 
         super().__init__(lat_size, hamiltonian)
 
-        self.levels = (
-            int(np.log2(lat_size) - np.log2(min_size)) + 1
-        )  # Number of levels in the U-Net
+        self.levels = int(np.log2(lat_size) - np.log2(min_size)) + 1  # Number of levels in the U-Net
         assert self.levels > 0, "The lattice size must be larger than the minimum size."
 
         self.encoder_expand_convs = nn.ModuleList()  # Expands the number of channels
 
-        self.encoder_refine_convs = (
-            nn.ModuleList()
-        )  # Refines the features in the expanded channels
+        self.encoder_refine_convs = nn.ModuleList()  # Refines the features in the expanded channels
 
-        self.decoder_reduce_convs = (
-            nn.ModuleList()
-        )  # Reduces the number of channels after upsampling
+        self.decoder_reduce_convs = nn.ModuleList()  # Reduces the number of channels after upsampling
 
-        self.decoder_upsample_convs = (
-            nn.ModuleList()
-        )  # Upsamples the features to the next level
+        self.decoder_upsample_convs = nn.ModuleList()  # Upsamples the features to the next level
 
-        self.temp_channel_rescaling = (
-            nn.ModuleList()
-        )  # MLPs to incorporate temperature in the skip connections
+        self.temp_channel_rescaling = nn.ModuleList()  # MLPs to incorporate temperature in the skip connections
 
-        self.pool = nn.MaxPool2d(
-            kernel_size=2, stride=2, dilation=1
-        )  # Max pooling layer
+        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, dilation=1)  # Max pooling layer
 
         for i in range(self.levels):
 
@@ -218,9 +202,7 @@ class Corr2PtUNet(Corr2PtConv):
         # Encoding path
         for i in range(self.levels):
 
-            out = F.silu(
-                self.encoder_refine_convs[i](F.silu(self.encoder_expand_convs[i](out)))
-            )
+            out = F.silu(self.encoder_refine_convs[i](F.silu(self.encoder_expand_convs[i](out))))
 
             if i < self.levels - 1:
                 out_copies.append(out.clone())
@@ -230,16 +212,13 @@ class Corr2PtUNet(Corr2PtConv):
         for i in range(self.levels - 1):
 
             temp_rescaling, temp_bias = self.temp_channel_rescaling[i](
-                temps.unsqueeze(
-                    -1
-                ).float()  # Unsqueeze to add singleton dimension for MLP input
+                temps.unsqueeze(-1).float()  # Unsqueeze to add singleton dimension for MLP input
             ).chunk(
                 2, dim=-1
             )  # Split into scaling and bias
 
             skip_connection = (
-                out_copies[self.levels - 2 - i] * temp_rescaling[:, :, None, None]
-                + temp_bias[:, :, None, None]
+                out_copies[self.levels - 2 - i] * temp_rescaling[:, :, None, None] + temp_bias[:, :, None, None]
             )
 
             out = torch.cat(
@@ -247,11 +226,7 @@ class Corr2PtUNet(Corr2PtConv):
                 dim=-3,
             )  # dim -3 is channels -- concatenate along channels
 
-            out = F.silu(
-                self.encoder_refine_convs[self.levels - 2 - i](
-                    F.silu(self.decoder_reduce_convs[i](out))
-                )
-            )
+            out = F.silu(self.encoder_refine_convs[self.levels - 2 - i](F.silu(self.decoder_reduce_convs[i](out))))
 
         # Final output layer
         self.shifts = self.decoder_reduce_convs[-1](out).squeeze(1)
