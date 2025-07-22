@@ -163,6 +163,16 @@ class Corr2PtUNet(Corr2PtConv):
                 )
             )
 
+            # MLP accepts scalar and outputs per-channel scaling factors and biases
+            self.temp_channel_rescaling.append(
+                nn.Sequential(
+                    nn.Linear(1, 2 ** (i + 1)),
+                    nn.SiLU(),
+                    nn.Linear(2 ** (i + 1), 2 ** (i + 2)),
+                    nn.SiLU(),
+                )  # Output is double the number of channels -- chunk into scale and bias
+            )
+
             if i < self.levels - 1:
 
                 self.decoder_upsample_convs.append(
@@ -172,16 +182,6 @@ class Corr2PtUNet(Corr2PtConv):
                         kernel_size=2,
                         stride=2,
                     )
-                )
-
-                # MLP accepts scalar and outputs per-channel scaling factors and biases
-                self.temp_channel_rescaling.append(
-                    nn.Sequential(
-                        nn.Linear(1, 2 ** (self.levels - i - 1)),
-                        nn.SiLU(),
-                        nn.Linear(2 ** (self.levels - i - 1), 2 ** (self.levels - i)),
-                        nn.SiLU(),
-                    )  # Output is double the number of channels -- chunk into scale and bias
                 )
 
             self.decoder_reduce_convs.append(
@@ -202,7 +202,17 @@ class Corr2PtUNet(Corr2PtConv):
         # Encoding path
         for i in range(self.levels):
 
-            out = F.silu(self.encoder_refine_convs[i](F.silu(self.encoder_expand_convs[i](out))))
+            out = F.silu(self.encoder_expand_convs[i](out))  # Expand the number of channels
+
+            temp_rescaling, temp_bias = self.temp_channel_rescaling[i](
+                temps.unsqueeze(-1).float()  # Unsqueeze to add singleton dimension for MLP input
+            ).chunk(
+                2, dim=-1
+            )  # Split into scaling and bias, 2 ** (i + 1) each
+
+            out = out * temp_rescaling[:, :, None, None] + temp_bias[:, :, None, None] # Apply FiLM layer
+
+            out = F.silu(self.encoder_refine_convs[i](out))  # Expecting 2 ** (i + 1) channels
 
             if i < self.levels - 1:
                 out_copies.append(out.clone())
@@ -211,15 +221,7 @@ class Corr2PtUNet(Corr2PtConv):
         # Decoding path with skip connections
         for i in range(self.levels - 1):
 
-            temp_rescaling, temp_bias = self.temp_channel_rescaling[i](
-                temps.unsqueeze(-1).float()  # Unsqueeze to add singleton dimension for MLP input
-            ).chunk(
-                2, dim=-1
-            )  # Split into scaling and bias
-
-            skip_connection = (
-                out_copies[self.levels - 2 - i] * temp_rescaling[:, :, None, None] + temp_bias[:, :, None, None]
-            )
+            skip_connection = out_copies[self.levels - 2 - i]
 
             out = torch.cat(
                 (self.decoder_upsample_convs[i](out), skip_connection),
