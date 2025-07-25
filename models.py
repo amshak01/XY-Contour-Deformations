@@ -34,14 +34,13 @@ class ConvNet(nn.Module):
         return masks
 
 
-class Corr2PtConv1Layer(ConvNet):
+class Conv1Layer(ConvNet):
     """Class for single-layer convolution"""
 
     def __init__(self, lat_size, kernel_size=8):
         """
         Args:
             lat_size (int): lattice size
-            hamiltonian (function): function for computing the hamiltonian
             kernel_size (int, optional): width of the square convolution kernel. Defaults to 8.
         """
 
@@ -61,13 +60,12 @@ class Corr2PtConv1Layer(ConvNet):
         """Forward pass of the 1-layer CNN
 
         Args:
-            lats (Tensor): tensor of lattice configs with shape (N,L,L) for batch size N and lattice size L
             temp (float): system temperature
             x_sep (int): separation in x
             y_sep (int): separation in y
 
         Returns:
-            Tensor: deformed 2-point correlator as tensor of shape (N,1,1)
+            Tensor: computed shift field as size (N,L,L)
         """
 
         masks = self.get_masks(x_seps, y_seps)
@@ -76,16 +74,14 @@ class Corr2PtConv1Layer(ConvNet):
         return shifts
 
 
-class Corr2PtUNet(ConvNet):
+class UNet(ConvNet):
     """U-Net architecture for temperature generalization"""
 
     def __init__(self, lat_size, min_size=4):
         """
         Args:
             lat_size (int): lattice size
-            hamiltonian (function): function for computing the hamiltonian
-            conv_width (int, optional): width of convolution kernel. Defaults to 4.
-            pool_width (int, optional): width of max pooling kernel. Defaults to 4.
+            min_size (int, optional): minimum size of the lattice at the coarsest level. Defaults to 4.
         """
 
         super().__init__(lat_size)
@@ -193,8 +189,5 @@ class Corr2PtUNet(ConvNet):
 
         # Final output layer
         shifts = self.decoder_reduce_convs[-1](out).squeeze(1)
-
-        # Subtract off the mean along the batch dimension
-        shifts = shifts - shifts.mean(dim=0, keepdim=True)
 
         return shifts

@@ -52,11 +52,13 @@ def train(model, device, loader, optimizer, epochs, scheduler=None, val_loader=N
             #         scheduler.step()
             # # -----
 
+            if scheduler is not None:
+                scheduler.step()
+
+            if batch % 25 == 0:
+                print(f"Batch {batch + 1}/{len(loader)}, Loss: {loss.item():.4f}")
             
         logs = {"train": total_train_loss / len(loader), "val": None}
-
-        if scheduler is not None:
-            scheduler.step()
 
         if val_loader is not None:
             model.eval()

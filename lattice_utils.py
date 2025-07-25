@@ -174,7 +174,7 @@ def deformed_corr_2d(lats, temps, shifts, x_seps, y_seps, ham=xy_hamiltonian):
     """
 
     _, L1, L2 = lats.shape
-    shifted = lats + 1j * shifts.view(-1, L1, L2)  # Apply the vertical shift deformation
+    shifted = lats + 1j * shifts # Apply the vertical shift deformation
     betas = 1 / temps
     reweighting = torch.exp(-betas * (ham(shifted) - ham(lats)))
 
