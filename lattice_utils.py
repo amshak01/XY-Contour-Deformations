@@ -5,50 +5,44 @@ from matplotlib import pyplot as plt
 import os, re
 
 
-class Corr2PtDataset(Dataset):
-    def __init__(self, lattices, temperatures, x_separations, y_separations):
-        """Class for storing lattice configurations and their corresponding temperatures and separations
-        Args:
-            lattices (Tensor): Tensor of size (N,L,L) containing N LxL lattice configs
-            temperatures (Tensor): array of length N containing temperature labels for each lattice config
-            x_separations (Tensor): array of length N containing x separations at which to compute correlation
-            y_separations (Tensor): same as **x_separations** but for y separations
+class BinFileDataset(Dataset):
+    """Dataset for reading binary files containing lattice configurations"""
+
+    def __init__(self, folder, fname, seps, random_seps=False, dtype=np.float64):
+        """Args:
+        folder (str): folder containing the binary file
+        fname (str): name of the binary file
+        seps (tuple): tuple of two integers specifying the minimum x and y separations for the masks
+        random_seps (bool, optional): whether to randomly sample separations or use fixed ones. Defaults to False.
+        dtype (type, optional): data type of the binary file. Defaults to np.float64.
         """
 
-        super().__init__()
+        assert fname.endswith(".bin"), "File must be binary data with extension '.bin'"
 
-        self.temps = temperatures
-        self.x_seps = x_separations
-        self.y_seps = y_separations
-        self.lats = lattices
+        self.filepath = os.path.join(folder, fname)
+        self.L, self.T = parse_filename(fname)
 
-    def __len__(self):
-        return self.temps.size(0)
-
-    def __getitem__(self, index):
-        return (
-            self.lats[index, ...],
-            self.temps[index],
-            self.x_seps[index],
-            self.y_seps[index],
-        )
-
-
-class BinArrayDataset(Dataset):
-    def __init__(self, filepath, L, dtype=np.float64, transform=None):
-        self.filepath = filepath
-        self.L = L
         self.dtype = dtype
-        self.transform = transform
 
         self._memmap = np.memmap(self.filepath, dtype=self.dtype, mode="r")
         total_elements = self._memmap.size
-        elements_per_array = L * L
+        elements_per_array = self.L * self.L
 
         if total_elements % elements_per_array != 0:
             raise ValueError("File size is not divisible by LxL. Possibly wrong L or data corruption.")
 
         self.N = total_elements // elements_per_array
+
+        self.get_seps = None
+        self.seps = seps
+
+        if random_seps:
+            self.get_seps = lambda: (
+                np.random.randint(low=self.seps[0], high=self.L - self.seps[0] + 1),
+                np.random.randint(low=self.seps[1], high=self.L - self.seps[1] + 1),
+            )
+        else:
+            self.get_seps = lambda: self.seps
 
     def __len__(self):
         return self.N
@@ -58,28 +52,34 @@ class BinArrayDataset(Dataset):
         end = (idx + 1) * self.L * self.L
         array = self._memmap[start:end].reshape(self.L, self.L)
 
-        if self.transform:
-            array = self.transform(array)
+        x, y = self.get_seps()
 
-        return torch.from_numpy(array.copy()).float()  # still casting to float32 for model input
+        return (
+            torch.from_numpy(array.copy()).float(),
+            torch.tensor(self.T, dtype=torch.float32),
+            torch.tensor(x, dtype=torch.float32),
+            torch.tensor(y, dtype=torch.float32),
+        )  # still casting to float32 for model input
 
 
-class MultiFileBinDataset(Dataset):
-    def __init__(self, folder, min_sep=1, dtype=np.float64, transform=None):
-        self.files = []
+class MultiFileDataset(Dataset):
+    """Dataset for reading multiple binary files from a folder containing lattice configurations at different temperatures"""
+
+    def __init__(self, folder, min_sep=1, dtype=np.float64):
+        """Args:
+        folder (str): folder containing the binary files
+        min_sep (int, optional): minimum separation for the masks. Defaults to 1.
+        dtype (type, optional): data type of the binary files. Defaults to np.float64.
+        """
+
         self.datasets = []
-        self.labels = []
         self.idx_map = []
-        self.min_sep = min_sep
 
         for fname in sorted(os.listdir(folder)):
             if fname.endswith(".bin"):
-                full_path = os.path.join(folder, fname)
-                L, T = extract_L_and_T_from_filename(fname)
 
-                ds = BinArrayDataset(full_path, L=L, dtype=dtype, transform=transform)
+                ds = BinFileDataset(folder, fname, seps=(min_sep, min_sep), random_seps=True, dtype=dtype)
                 self.datasets.append(ds)
-                self.labels.extend([T] * len(ds))
 
                 for i in range(len(ds)):
                     self.idx_map.append((len(self.datasets) - 1, i))
@@ -89,68 +89,16 @@ class MultiFileBinDataset(Dataset):
 
     def __getitem__(self, idx):
         file_idx, local_idx = self.idx_map[idx]
-        array = self.datasets[file_idx][local_idx]
-        label = self.labels[idx]
-        L1, L2 = array.size()
-        return (
-            array,
-            torch.tensor(label, dtype=torch.float32),
-            torch.tensor(np.random.randint(self.min_sep, L1 - self.min_sep + 1), dtype=torch.float32),
-            torch.tensor(np.random.randint(self.min_sep, L2 - self.min_sep + 1), dtype=torch.float32),
-        )
+        return self.datasets[file_idx][local_idx]
 
 
-def extract_L_and_T_from_filename(filename):
+def parse_filename(filename):
     match = re.search(r"L=(\d+)_cluster_T=([\d.]+)", filename)
     if not match:
         raise ValueError(f"Filename format unexpected: {filename}")
     L = int(match.group(1))
     T = float(match.group(2))
     return L, T
-
-
-def load_configs(L, T, dir="configs"):
-    """Loads lattice configurations from files with consistent naming schemes
-
-    Args:
-        L (int): lattice size
-        T (float): temperature
-        dir (str): directory in which files reside
-
-    Returns:
-        Tensor: tensor of shape (N,L,L) with N configs of lattice size L
-    """
-
-    filename = dir + "/L=" + str(L) + "_cluster_T=" + "{:.4f}".format(T) + "_configs.bin"
-    return torch.from_numpy(np.fromfile(filename).reshape(-1, L, L)).to(dtype=torch.cfloat)
-
-
-def load_temp_range(temps, lat_size, dir="configs"):
-    """Loads data for temperatures over a range
-
-    Args:
-        temps (ndarray): temperature range
-        lat_size (int): lattice size
-        dir (str, optional): folder in which files reside. Defaults to "configs".
-
-    Returns:
-        tuple(Tensor, Tensor): torch tensors containing lattice configs and temperature labels
-    """
-
-    lats = []
-    temp_labels = []
-
-    for i in range(temps.size):
-
-        configs = load_configs(lat_size, temps[i], dir)
-
-        n = configs.size(0)
-        cut = configs[n // 20 :, ...]
-
-        lats.append(cut)
-        temp_labels.append(torch.ones(lats[i].size(0)) * temps[i])
-
-    return (lats, temp_labels)
 
 
 def identity(vals):
@@ -212,6 +160,27 @@ def corr_2d(lats, x_seps, y_seps):
     return torch.exp(1j * (lats[order, 0, 0] - lats[order, y_seps.long(), x_seps.long()]))
 
 
+def deformed_corr_2d(lats, temps, shifts, x_seps, y_seps, ham=xy_hamiltonian):
+    """Computes the deformed two-point correlator for a set of lattice configurations
+
+    Args:
+        lats (Tensor): tensor of shape (N,L,L) with N configs of lattice size L
+        shifts (Tensor): tensor of shape (N,) with vertical shifts applied to each config
+        x_seps (Tensor): torch tensor of size (N,) containing x separations at which to compute correlations
+        y_seps (Tensor): same as **x_seps** but for y coordinate
+
+    Returns:
+        Tensor: tensor of shape (N,) containing the deformed 2-point correlator
+    """
+
+    _, L1, L2 = lats.shape
+    shifted = lats + 1j * shifts.view(-1, L1, L2)  # Apply the vertical shift deformation
+    betas = 1 / temps
+    reweighting = torch.exp(-betas * (ham(shifted) - ham(lats)))
+
+    return corr_2d(shifted, x_seps, y_seps) * reweighting
+
+
 def helicity_modulus(lats, T):
     """Computes the contributions to the spin stiffness for a set of lattice configurations
 
@@ -247,60 +216,6 @@ def mean_squared_mag(lats):
     N = L**2
     mag_squared = (torch.exp(1j * lats).sum((-2, -1))) * (torch.exp(-1j * lats).sum((-2, -1)))
     return mag_squared.numpy().real / (N**2)
-
-
-def bin_bootstrap(data, stat, nboot, level):
-    """Bootstrap correlated data using bins of size determined by ac length
-
-    Args:
-        data (ndarray): numpy array of measurements
-        stat (function): function that computes the desired statistic from data
-        nboot (int): number of times to resample
-        level (float): desired confidence level on returned interval
-
-    Returns:
-        (float, float, float): centre along with lower and upper bounds of confidence interval, respectively
-    """
-
-    # Compute bin size from acf
-    thresh = 2 / np.sqrt(data.size)
-    binsize = np.argmax(np.abs(acf(data, length=25)) < thresh) + 1
-    # print(binsize)
-
-    # Cut off trailing data points so length divisible by bin size
-    # (need to find a better way but this is fine for now)
-    cut = data.size % binsize
-    samples = data[: data.size - cut]
-
-    binned = np.reshape(samples, shape=(-1, binsize))
-    n_bins = binned.shape[0]
-    boots = np.zeros(nboot)
-
-    for i in range(nboot):
-        resampled = binned[np.random.randint(0, n_bins, size=n_bins), :].flatten()
-        boots[i] = stat(resampled)
-
-    alpha = 1 - (level / 100)
-    upper = np.quantile(boots, alpha / 2)
-    lower = np.quantile(boots, 1 - alpha / 2)
-
-    est = stat(samples)
-    return (stat(data), est + (est - lower), est + (est - upper))
-
-
-def acf(samples, length=20):
-    """Compute the autocorrelation function for a list of samples
-    Courtesy of https://stackoverflow.com/a/7981132
-
-    Args:
-        samples (ndarray): data on which to compute acf
-        length (int, optional): maximum distance at which acf will be computed. Defaults to 20.
-
-    Returns:
-        ndarray: 1D array of 'floats' of size 'length'
-    """
-
-    return np.array([1] + [np.corrcoef(samples[:-i], samples[i:])[0, 1] for i in range(1, length)])
 
 
 def plot_tensor_grid(tensor):
@@ -344,4 +259,51 @@ def plot_tensor_grid(tensor):
     fig.colorbar(im, cax=cbar_ax, orientation="horizontal")
 
     plt.subplots_adjust(left=0, right=1, top=1, bottom=0.08)
+    plt.show()
+
+
+def plot_hists(initial, deformed):
+    """Plot histograms of initial and deformed configurations
+
+    Args:
+        initial (Tensor): tensor of initial configurations
+        deformed (Tensor): tensor of deformed configurations
+    """
+
+    xi, yi = initial.real, initial.imag
+    xf, yf = deformed.real, deformed.imag
+
+    x_means = (xi.mean(), xf.mean())
+    y_means = (yi.mean(), yf.mean())
+
+    xlim = (-1, 1)
+    ylim = (-1, 1)
+    # --- Create Plot ---
+    fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharex=True, sharey=True)
+
+    # Plot histograms and store images
+    h1 = axes[0].hist2d(xi, yi, bins=50, range=[xlim, ylim])
+    h2 = axes[1].hist2d(xf, yf, bins=50, range=[xlim, ylim])
+
+    # Titles and labels
+    axes[0].set_title("Undeformed observable $\\mathcal{O}$")
+    axes[1].set_title("Deformed Observable $\\mathcal{Q}$")
+
+    axes[0].set_xlabel("$\\mathrm{Re}(\\mathcal{O})$")
+    axes[0].set_ylabel("$\\mathrm{Im}(\\mathcal{O})$")
+
+    axes[1].set_xlabel("$\\mathrm{Re}(\\mathcal{Q})$")
+    axes[1].set_ylabel("$\\mathrm{Im}(\\mathcal{Q})$")
+
+    for i in range(len(axes)):
+        axes[i].set_xticks(np.linspace(-1, 1, 5))
+        axes[i].set_yticks(np.linspace(-1, 1, 5))
+        axes[i].vlines(x_means[i], ymin=-1, ymax=1, color="white", ls="--", lw=1)
+        axes[i].hlines(y_means[i], xmin=-1, xmax=1, color="white", ls="--", lw=1)
+
+    # --- Shared Colorbar ---
+    # Use the mappable from one of the histograms (e.g. h1[3])
+    cbar = fig.colorbar(h1[3], ax=axes.ravel().tolist(), orientation="vertical")
+    cbar.set_label("Counts")
+
     plt.show()

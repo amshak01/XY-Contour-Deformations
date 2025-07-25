@@ -4,53 +4,15 @@ import torch.nn.functional as F
 import numpy as np
 
 
-class ShiftOptimizer(nn.Module):
-    """Basic superclass for all vertical shift deformation schemes"""
+class ConvNet(nn.Module):
+    """Superclass for convolution-based vertical shift deformations of the two-point correlator"""
 
-    def __init__(self, lat_size, hamiltonian, obs):
-        """
-        Args:
-            lat_size (int): lattice size
-            hamiltonian (function): function for computing the hamiltonian
-            obs (function): function that computes the observable on the lattice configurations
-        """
-
+    def __init__(self, lat_size):
         super().__init__()
 
         self.lat_size = lat_size
-        self.hamiltonian = hamiltonian
-        self.obs = obs
-        self.shifts = 0
 
-    def deformed(self, temps, lats, *obs_args):
-        """Computes a deformed observable for a vertical shift deformation
-
-        Args:
-            temp (float): system temperature
-            lats (Tensor): torch tensor of size (N,L,L) with N configs of lattice size L
-            *obs_args: additional variables required to compute the observable
-
-        Returns:
-            Tensor: tensor of size (N,) containing the deformed observable for each configuration
-        """
-
-        shifted = lats + 1j * self.shifts  # Apply the vertical shift deformation
-        betas = 1 / temps
-
-        return self.obs(shifted, *obs_args) * torch.exp(
-            -betas * (self.hamiltonian(shifted) - self.hamiltonian(lats))
-        )  # Compute and return the deformed observable
-
-
-class Corr2PtConv(ShiftOptimizer):
-    """Superclass for convolution-based vertical shift deformations of the two-point correlator"""
-
-    def __init__(self, lat_size, hamiltonian):
-        from lattice_utils import corr_2d
-
-        super().__init__(lat_size, hamiltonian, corr_2d)
-
-    def get_masks(self, lats, x_seps, y_seps):
+    def get_masks(self, x_seps, y_seps):
         """Generate N masks for each of N input configurations
 
         Args:
@@ -62,18 +24,20 @@ class Corr2PtConv(ShiftOptimizer):
             Tensor: tensor of shape (N,1,L,L) containing the N 1-channel masks for input to convolutional layers
         """
 
-        masks = torch.zeros(lats.size(), device=lats.device).unsqueeze(dim=1)  # an extra channel dimension added
-        order = torch.arange(0, lats.size(0))
+        N = x_seps.size(0)
+        size = (N, self.lat_size, self.lat_size)
+        masks = torch.zeros(size, device=x_seps.device).unsqueeze(dim=1)  # an extra channel dimension added
+        order = torch.arange(0, N)
         masks[order, 0, 0, 0] = 1  # Set the origin to have a value of 1 (source)
         masks[order, 0, y_seps.long(), x_seps.long()] = -1  # Set the other site to be opposite (sink)
 
         return masks
 
 
-class Corr2PtConv1Layer(Corr2PtConv):
+class Corr2PtConv1Layer(ConvNet):
     """Class for single-layer convolution"""
 
-    def __init__(self, lat_size, hamiltonian, kernel_size=8):
+    def __init__(self, lat_size, kernel_size=8):
         """
         Args:
             lat_size (int): lattice size
@@ -81,7 +45,7 @@ class Corr2PtConv1Layer(Corr2PtConv):
             kernel_size (int, optional): width of the square convolution kernel. Defaults to 8.
         """
 
-        super().__init__(lat_size, hamiltonian)
+        super().__init__(lat_size)
 
         # Single convolution layer
         self.conv = nn.Conv2d(
@@ -93,7 +57,7 @@ class Corr2PtConv1Layer(Corr2PtConv):
             bias=False,
         )
 
-    def forward(self, lats, temps, x_seps, y_seps):
+    def forward(self, temps, x_seps, y_seps):
         """Forward pass of the 1-layer CNN
 
         Args:
@@ -106,16 +70,16 @@ class Corr2PtConv1Layer(Corr2PtConv):
             Tensor: deformed 2-point correlator as tensor of shape (N,1,1)
         """
 
-        masks = self.get_masks(lats, x_seps, y_seps)
+        masks = self.get_masks(x_seps, y_seps)
 
-        self.shifts = self.conv(masks).squeeze(1)
-        return self.deformed(temps, lats, x_seps, y_seps)
+        shifts = self.conv(masks).squeeze(1)
+        return shifts
 
 
-class Corr2PtUNet(Corr2PtConv):
+class Corr2PtUNet(ConvNet):
     """U-Net architecture for temperature generalization"""
 
-    def __init__(self, lat_size, hamiltonian, min_size=16):
+    def __init__(self, lat_size, min_size=4):
         """
         Args:
             lat_size (int): lattice size
@@ -124,7 +88,7 @@ class Corr2PtUNet(Corr2PtConv):
             pool_width (int, optional): width of max pooling kernel. Defaults to 4.
         """
 
-        super().__init__(lat_size, hamiltonian)
+        super().__init__(lat_size)
 
         self.levels = int(np.log2(lat_size) - np.log2(min_size)) + 1  # Number of levels in the U-Net
         assert self.levels > 0, "The lattice size must be larger than the minimum size."
@@ -166,10 +130,7 @@ class Corr2PtUNet(Corr2PtConv):
             # MLP accepts scalar and outputs per-channel scaling factors and biases
             self.temp_channel_rescaling.append(
                 nn.Sequential(
-                    nn.Linear(1, 2 ** (i + 1)),
-                    nn.SiLU(),
-                    nn.Linear(2 ** (i + 1), 2 ** (i + 2)),
-                    nn.SiLU(),
+                    nn.Linear(1, 2 ** (i + 1)), nn.SiLU(), nn.Linear(2 ** (i + 1), 2 ** (i + 2)), nn.SiLU()
                 )  # Output is double the number of channels -- chunk into scale and bias
             )
 
@@ -194,9 +155,9 @@ class Corr2PtUNet(Corr2PtConv):
                 )
             )
 
-    def forward(self, lats, temps, x_seps, y_seps):
+    def forward(self, temps, x_seps, y_seps):
 
-        out = self.get_masks(lats, x_seps, y_seps)
+        out = self.get_masks(x_seps, y_seps)
         out_copies = []
 
         # Encoding path
@@ -210,7 +171,7 @@ class Corr2PtUNet(Corr2PtConv):
                 2, dim=-1
             )  # Split into scaling and bias, 2 ** (i + 1) each
 
-            out = out * temp_rescaling[:, :, None, None] + temp_bias[:, :, None, None] # Apply FiLM layer
+            out = out * temp_rescaling[:, :, None, None] + temp_bias[:, :, None, None]  # Apply FiLM layer
 
             out = F.silu(self.encoder_refine_convs[i](out))  # Expecting 2 ** (i + 1) channels
 
@@ -231,6 +192,9 @@ class Corr2PtUNet(Corr2PtConv):
             out = F.silu(self.encoder_refine_convs[self.levels - 2 - i](F.silu(self.decoder_reduce_convs[i](out))))
 
         # Final output layer
-        self.shifts = self.decoder_reduce_convs[-1](out).squeeze(1)
+        shifts = self.decoder_reduce_convs[-1](out).squeeze(1)
 
-        return self.deformed(temps, lats, x_seps, y_seps)
+        # Subtract off the mean along the batch dimension
+        shifts = shifts - shifts.mean(dim=0, keepdim=True)
+
+        return shifts

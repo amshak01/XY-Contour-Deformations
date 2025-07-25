@@ -5,7 +5,7 @@
 #include <complex.h>
 #include <math.h>
 
-#define SIZE 64
+#define SIZE 128
 #define _USE_MATH_DEFINES
 #define N_ITER 2e5
 
@@ -299,7 +299,7 @@ int simulate(double temp, char filename[])
     // fclose(corr_file);
     fclose(lat_file);
 
-    // printf("Average Cluster Size of %.5f\nTotal updates: %d\n", (cluster_tot / iter) / (SIZE * SIZE), iter);
+    printf("Average Cluster Size of %.5f\nTotal updates: %d\n", (cluster_tot / iter) / (SIZE * SIZE), iter);
 
     return iter;
 }
@@ -307,9 +307,9 @@ int simulate(double temp, char filename[])
 int main(void)
 {
 
-    double min_temp = 0.8;
-    double max_temp = 1.0;
-    int n_temps = 20;
+    double min_temp = 1.01;
+    double max_temp = 1.10;
+    int n_temps = 9;
 
     printf("Beginning simulation of XY model on a %dx%d lattice...\n", SIZE, SIZE);
 
@@ -321,7 +321,7 @@ int main(void)
     {
         double temp = min_temp + i * (max_temp - min_temp) / n_temps;
         char write_to[64];
-        sprintf(write_to, "test_configs/L=%d_cluster_T=%1.4f", SIZE, temp);
+        sprintf(write_to, "L_%d/U-Net/train/L=%d_cluster_T=%1.4f", SIZE, SIZE, temp);
         clock_t begin = clock();
         int iter = simulate(temp, write_to);
         clock_t end = clock();

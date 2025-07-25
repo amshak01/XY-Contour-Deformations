@@ -1,6 +1,7 @@
 import torch
 from livelossplot import PlotLosses
 from livelossplot.outputs import MatplotlibPlot
+from lattice_utils import deformed_corr_2d
 
 
 def train(model, device, loader, optimizer, epochs, scheduler=None, val_loader=None, smoothing=0.01):
@@ -17,9 +18,11 @@ def train(model, device, loader, optimizer, epochs, scheduler=None, val_loader=N
     """
 
     liveloss = PlotLosses(groups={"loss": ["train", "val"]})
-    logs = {}
+    # liveloss = PlotLosses()
+    # logs = {}
 
     model.train()
+    # total_train_loss = 0
 
     for i in range(epochs):
         total_train_loss = 0
@@ -37,6 +40,18 @@ def train(model, device, loader, optimizer, epochs, scheduler=None, val_loader=N
             optimizer.step()
 
             total_train_loss += loss.item()
+
+            # # ----- temporary
+            # if batch % 25 == 0 and batch > 0:
+            #     logs = {'train' : total_train_loss / 25}
+            #     liveloss.update(logs)
+            #     liveloss.send()
+            #     total_train_loss = 0
+
+            #     if scheduler is not None:
+            #         scheduler.step()
+            # # -----
+
             
         logs = {"train": total_train_loss / len(loader), "val": None}
 
@@ -52,7 +67,6 @@ def train(model, device, loader, optimizer, epochs, scheduler=None, val_loader=N
 
                     inputs = tuple(input.to(device) for input in inputs)
 
-                    reQ = model(*inputs).real
                     loss = penalized_loss(model, inputs, smoothing)
 
                     total_val_loss += loss.item()
@@ -77,7 +91,10 @@ def penalized_loss(model, inputs, smoothing):
         Tensor: computed loss value
     """
 
-    reQ = model(*inputs).real
+    lats, temps, x_seps, y_seps = inputs
+    shift_fields = model(temps, x_seps, y_seps).real
+    reQ = deformed_corr_2d(lats, temps, shift_fields, x_seps, y_seps).real
+
     mean_square = torch.mean(reQ**2)
-    smoothness_penalty = (model.shifts - model.shifts.roll(1, -1)) ** 2 + (model.shifts - model.shifts.roll(1, -2)) ** 2
+    smoothness_penalty = (shift_fields - shift_fields.roll(1, -1)) ** 2 + (shift_fields - shift_fields.roll(1, -2)) ** 2
     return mean_square + smoothing * torch.mean(smoothness_penalty)
