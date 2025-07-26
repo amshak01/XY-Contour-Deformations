@@ -234,7 +234,7 @@ def plot_tensor_grid(tensor):
     fig, axes = plt.subplots(
         nrows,
         ncols,
-        figsize=(ncols, nrows),
+        figsize=(ncols * 2, nrows * 2),
         sharex=True,
         sharey=True,
         gridspec_kw=dict(wspace=0.05, hspace=0.05),
@@ -248,7 +248,7 @@ def plot_tensor_grid(tensor):
 
     im = None
     for i in range(N):
-        im = axes[i].imshow(array[i], vmin=vmin, vmax=vmax, cmap="viridis")
+        im = axes[i].imshow(array[i], vmin=vmin, vmax=vmax, cmap="seismic")
         axes[i].axis("off")
 
     for i in range(N, len(axes)):
