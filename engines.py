@@ -16,8 +16,16 @@ def train(model, device, loader, optimizer, epochs, scheduler=None, val_loader=N
     Returns:
         list[float]: list containing loss at each epoch for plotting/diagnostic purposes
     """
+    liveloss = None
+    logs = {}
 
-    liveloss = PlotLosses(groups={"loss": ["train", "val"]})
+    if val_loader is not None:
+        liveloss = PlotLosses(groups={"loss": ["train", "val"]})
+        logs = {"train": 0, "val": 0}
+    else:
+        liveloss = PlotLosses(groups={"loss": ["train"]})
+        logs = {"train": 0}
+
     # liveloss = PlotLosses()
     # logs = {}
 
@@ -33,7 +41,7 @@ def train(model, device, loader, optimizer, epochs, scheduler=None, val_loader=N
 
             optimizer.zero_grad()
 
-            loss = penalized_loss(model, inputs, smoothing)
+            loss = loss_fn(model, inputs)
 
             loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
@@ -57,8 +65,8 @@ def train(model, device, loader, optimizer, epochs, scheduler=None, val_loader=N
 
             if batch % 25 == 0:
                 print(f"Batch {batch + 1}/{len(loader)}, Loss: {loss.item():.4f}")
-            
-        logs = {"train": total_train_loss / len(loader), "val": None}
+
+        logs["train"] = total_train_loss / len(loader)
 
         if val_loader is not None:
             model.eval()
@@ -69,25 +77,26 @@ def train(model, device, loader, optimizer, epochs, scheduler=None, val_loader=N
 
                     inputs = tuple(input.to(device) for input in inputs)
 
-                    loss = penalized_loss(model, inputs, smoothing)
+                    loss = loss_fn(model, inputs)
 
                     total_val_loss += loss.item()
 
-            logs['val'] = total_val_loss / len(val_loader)
-        
+            logs["val"] = total_val_loss / len(val_loader)
+
         liveloss.update(logs)
         liveloss.send()
 
         model.train()
 
 
-def penalized_loss(model, inputs, smoothing):
+def loss_fn(model, inputs):
     """Computes the penalized loss for a model given its inputs
 
     Args:
         model (nn): torch neural network model
         inputs (tuple): inputs to the model
-        smoothing (float, optional): smoothing factor for the penalty term. Defaults to 0.01.
+        smoothing (float): smoothing factor for the penalty term. Defaults to 0.01.
+        centering (float): enforces zero mean shift field. Defaults to 0.01.
 
     Returns:
         Tensor: computed loss value
@@ -98,5 +107,5 @@ def penalized_loss(model, inputs, smoothing):
     reQ = deformed_corr_2d(lats, temps, shift_fields, x_seps, y_seps).real
 
     mean_square = torch.mean(reQ**2)
-    smoothness_penalty = (shift_fields - shift_fields.roll(1, -1)) ** 2 + (shift_fields - shift_fields.roll(1, -2)) ** 2
-    return mean_square + smoothing * torch.mean(smoothness_penalty)
+
+    return mean_square

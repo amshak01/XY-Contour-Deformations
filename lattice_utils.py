@@ -3,6 +3,10 @@ from torch.utils.data import Dataset
 import numpy as np
 from matplotlib import pyplot as plt
 import os, re
+from matplotlib.colors import Normalize
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+from matplotlib.gridspec import GridSpec
+from scipy.stats import gaussian_kde
 
 
 class BinFileDataset(Dataset):
@@ -174,7 +178,7 @@ def deformed_corr_2d(lats, temps, shifts, x_seps, y_seps, ham=xy_hamiltonian):
     """
 
     _, L1, L2 = lats.shape
-    shifted = lats + 1j * shifts # Apply the vertical shift deformation
+    shifted = lats + 1j * shifts  # Apply the vertical shift deformation
     betas = 1 / temps
     reweighting = torch.exp(-betas * (ham(shifted) - ham(lats)))
 
@@ -218,92 +222,87 @@ def mean_squared_mag(lats):
     return mag_squared.numpy().real / (N**2)
 
 
-def plot_tensor_grid(tensor):
-    assert tensor.ndim == 3, "Input tensor must have shape (N, L, L)"
-    N, L1, L2 = tensor.shape
-    assert L1 == L2, "Each slice must be square (L, L)"
-
-    # Convert to numpy
-    array = tensor.detach().cpu().numpy()
-
-    # Determine grid size
-    ncols = int(np.ceil(np.sqrt(N)))
-    nrows = int(np.ceil(N / ncols))
-
-    # Create figure and subplots with no gaps
-    fig, axes = plt.subplots(
-        nrows,
-        ncols,
-        figsize=(ncols * 2, nrows * 2),
-        sharex=True,
-        sharey=True,
-        gridspec_kw=dict(wspace=0.05, hspace=0.05),
-    )
-
-    axes = axes.flat
-
-    # Common color scale
-    vmin = array.min()
-    vmax = array.max()
-
-    im = None
-    for i in range(N):
-        im = axes[i].imshow(array[i], vmin=vmin, vmax=vmax, cmap="seismic")
-        axes[i].axis("off")
-
-    for i in range(N, len(axes)):
-        axes[i].axis("off")
-
-    # Horizontal colorbar
-    cbar_ax = fig.add_axes([0.2, 0.02, 0.6, 0.03])
-    fig.colorbar(im, cax=cbar_ax, orientation="horizontal")
-
-    plt.subplots_adjust(left=0, right=1, top=1, bottom=0.08)
-    plt.show()
-
-
-def plot_hists(initial, deformed):
-    """Plot histograms of initial and deformed configurations
-
-    Args:
-        initial (Tensor): tensor of initial configurations
-        deformed (Tensor): tensor of deformed configurations
-    """
+def plot_hists(initial, deformed, fig=None):
+    if hasattr(initial, "detach"):
+        initial = initial.detach().cpu().numpy()
+    if hasattr(deformed, "detach"):
+        deformed = deformed.detach().cpu().numpy()
 
     xi, yi = initial.real, initial.imag
     xf, yf = deformed.real, deformed.imag
 
-    x_means = (xi.mean(), xf.mean())
-    y_means = (yi.mean(), yf.mean())
-
     xlim = (-1, 1)
     ylim = (-1, 1)
-    # --- Create Plot ---
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4), sharex=True, sharey=True)
 
-    # Plot histograms and store images
-    h1 = axes[0].hist2d(xi, yi, bins=50, range=[xlim, ylim])
-    h2 = axes[1].hist2d(xf, yf, bins=50, range=[xlim, ylim])
+    if fig is None:
+        fig, axes = plt.subplots(1, 2, figsize=(14, 6))
+    else:
+        axes = fig.subplots(1, 2)
 
-    # Titles and labels
-    axes[0].set_title("Undeformed observable $\\mathcal{O}$")
-    axes[1].set_title("Deformed Observable $\\mathcal{Q}$")
+    for i, (x, y, ax_main, xlabel, ylabel) in enumerate(
+        [
+            (xi, yi, axes[0], "Re($\\mathcal{O}$)", "Im($\\mathcal{O}$)"),
+            (xf, yf, axes[1], "Re($\\mathcal{Q}$)", "Im($\\mathcal{Q}$)"),
+        ]
+    ):
+        # --- Divider for marginals and colorbar ---
+        divider = make_axes_locatable(ax_main)
+        ax_x = divider.append_axes("top", size="20%", pad=0.05, sharex=ax_main)
+        ax_y = divider.append_axes("right", size="20%", pad=0.05, sharey=ax_main)
+        cbar_ax = divider.append_axes("bottom", size="5%", pad=0.3)
 
-    axes[0].set_xlabel("$\\mathrm{Re}(\\mathcal{O})$")
-    axes[0].set_ylabel("$\\mathrm{Im}(\\mathcal{O})$")
+        # --- 2D Histogram ---
+        h = ax_main.hist2d(x, y, bins=50, range=[xlim, ylim], cmap="viridis", norm=Normalize(vmin=0))
 
-    axes[1].set_xlabel("$\\mathrm{Re}(\\mathcal{Q})$")
-    axes[1].set_ylabel("$\\mathrm{Im}(\\mathcal{Q})$")
+        # --- Marginal KDEs ---
+        def plot_kde(ax, data, axis):
+            kde = gaussian_kde(data)
+            grid = np.linspace(-1, 1, 500)
+            density = kde(grid)
+            if axis == "x":
+                ax.plot(grid, density, color="black")
+            else:
+                ax.plot(density, grid, color="black")
 
-    for i in range(len(axes)):
-        axes[i].set_xticks(np.linspace(-1, 1, 5))
-        axes[i].set_yticks(np.linspace(-1, 1, 5))
-        axes[i].vlines(x_means[i], ymin=-1, ymax=1, color="white", ls="--", lw=1)
-        axes[i].hlines(y_means[i], xmin=-1, xmax=1, color="white", ls="--", lw=1)
+        plot_kde(ax_x, x, "x")
+        plot_kde(ax_y, y, "y")
 
-    # --- Shared Colorbar ---
-    # Use the mappable from one of the histograms (e.g. h1[3])
-    cbar = fig.colorbar(h1[3], ax=axes.ravel().tolist(), orientation="vertical")
-    cbar.set_label("Counts")
+        # --- Cleanup ---
+        ax_main.set_xlim(xlim)
+        ax_main.set_ylim(ylim)
+        ax_main.set_aspect("equal")
+        ax_main.axvline(np.mean(x), color="white", linestyle="--")
+        ax_main.axhline(np.mean(y), color="white", linestyle="--")
 
-    plt.show()
+        ax_main.set_xlabel(xlabel)
+        ax_main.set_ylabel(ylabel)
+
+        for ax in [ax_x, ax_y]:
+            ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
+            ax.set_facecolor("none")
+
+        # --- Colorbar (now same width as plot) ---
+        cb = fig.colorbar(h[3], cax=cbar_ax, orientation="horizontal")
+        cb.set_label("Counts")
+
+        # --- Stats box ---
+        x_mean, y_mean = np.mean(x), np.mean(y)
+        x_var, y_var = np.var(x), np.var(y)
+        stat_txt = (
+            f"$\\mu_x$ = {x_mean:.4f}\n"
+            f"$\\mu_y$ = {y_mean:.4f}\n"
+            f"$\\sigma^2_x$ = {x_var:.4f}\n"
+            f"$\\sigma^2_y$ = {y_var:.4f}"
+        )
+        ax_main.text(
+            0.02,
+            0.02,
+            stat_txt,
+            transform=ax_main.transAxes,
+            fontsize=10,
+            verticalalignment="bottom",
+            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
+        )
+
+    fig.tight_layout(pad=0.5)  # Reduce internal padding
+    return fig
