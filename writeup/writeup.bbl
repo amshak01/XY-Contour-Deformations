@@ -1,0 +1,470 @@
+% $ biblatex auxiliary file $
+% $ biblatex bbl format version 3.2 $
+% Do not modify the above lines!
+%
+% This is an auxiliary file used by the 'biblatex' package.
+% This file may safely be deleted. It will be recreated as
+% required.
+%
+\begingroup
+\makeatletter
+\@ifundefined{ver@biblatex.sty}
+  {\@latex@error
+     {Missing 'biblatex' package}
+     {The bibliography requires the 'biblatex' package.}
+      \aftergroup\endinput}
+  {}
+\endgroup
+
+\datalist[entry]{nty/global//global/global}
+  \entry{albergo2025netsnonequilibriumtransportsampler}{misc}{}
+    \name{author}{2}{}{%
+      {{hash=AMS}{%
+         family={Albergo},
+         familyi={A\bibinitperiod},
+         given={Michael\bibnamedelima S.},
+         giveni={M\bibinitperiod\bibinitdelim S\bibinitperiod},
+      }}%
+      {{hash=VEE}{%
+         family={Vanden-Eijnden},
+         familyi={V\bibinithyphendelim E\bibinitperiod},
+         given={Eric},
+         giveni={E\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{AMSVEE1}
+    \strng{fullhash}{AMSVEE1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{A}
+    \field{sortinithash}{A}
+    \verb{eprint}
+    \verb 2410.02711
+    \endverb
+    \field{title}{NETS: A Non-Equilibrium Transport Sampler}
+    \verb{url}
+    \verb https://arxiv.org/abs/2410.02711
+    \endverb
+    \field{eprinttype}{arXiv}
+    \field{eprintclass}{cs.LG}
+    \field{year}{2025}
+  \endentry
+
+  \entry{Detmold_2021}{article}{}
+    \name{author}{5}{}{%
+      {{hash=DW}{%
+         family={Detmold},
+         familyi={D\bibinitperiod},
+         given={William},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=KG}{%
+         family={Kanwar},
+         familyi={K\bibinitperiod},
+         given={Gurtej},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=LH}{%
+         family={Lamm},
+         familyi={L\bibinitperiod},
+         given={Henry},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=WML}{%
+         family={Wagman},
+         familyi={W\bibinitperiod},
+         given={Michael\bibnamedelima L.},
+         giveni={M\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+      {{hash=WNC}{%
+         family={Warrington},
+         familyi={W\bibinitperiod},
+         given={Neill\bibnamedelima C.},
+         giveni={N\bibinitperiod\bibinitdelim C\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {American Physical Society (APS)}%
+    }
+    \strng{namehash}{DW+1}
+    \strng{fullhash}{DWKGLHWMLWNC1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \verb{doi}
+    \verb 10.1103/physrevd.103.094517
+    \endverb
+    \field{issn}{2470-0029}
+    \field{number}{9}
+    \field{title}{Path integral contour deformations for observables in $SU(N)$ gauge theory}
+    \verb{url}
+    \verb http://dx.doi.org/10.1103/PhysRevD.103.094517
+    \endverb
+    \field{volume}{103}
+    \field{journaltitle}{Physical Review D}
+    \field{month}{05}
+    \field{year}{2021}
+  \endentry
+
+  \entry{detmold2023signaltonoiseimprovementneuralnetwork}{misc}{}
+    \name{author}{5}{}{%
+      {{hash=DW}{%
+         family={Detmold},
+         familyi={D\bibinitperiod},
+         given={William},
+         giveni={W\bibinitperiod},
+      }}%
+      {{hash=KG}{%
+         family={Kanwar},
+         familyi={K\bibinitperiod},
+         given={Gurtej},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=LY}{%
+         family={Lin},
+         familyi={L\bibinitperiod},
+         given={Yin},
+         giveni={Y\bibinitperiod},
+      }}%
+      {{hash=SPE}{%
+         family={Shanahan},
+         familyi={S\bibinitperiod},
+         given={Phiala\bibnamedelima E.},
+         giveni={P\bibinitperiod\bibinitdelim E\bibinitperiod},
+      }}%
+      {{hash=WML}{%
+         family={Wagman},
+         familyi={W\bibinitperiod},
+         given={Michael\bibnamedelima L.},
+         giveni={M\bibinitperiod\bibinitdelim L\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{DW+1}
+    \strng{fullhash}{DWKGLYSPEWML1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \verb{eprint}
+    \verb 2309.00600
+    \endverb
+    \field{title}{Signal-to-noise improvement through neural network contour deformations for 3D $SU(2)$ lattice gauge theory}
+    \verb{url}
+    \verb https://arxiv.org/abs/2309.00600
+    \endverb
+    \field{eprinttype}{arXiv}
+    \field{eprintclass}{hep-lat}
+    \field{year}{2023}
+  \endentry
+
+  \entry{drouintouchette2022kosterlitzthoulessphasetransitionintroduction}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=DTV}{%
+         family={Drouin-Touchette},
+         familyi={D\bibinithyphendelim T\bibinitperiod},
+         given={Victor},
+         giveni={V\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{DTV1}
+    \strng{fullhash}{DTV1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{D}
+    \field{sortinithash}{D}
+    \verb{eprint}
+    \verb 2207.13748
+    \endverb
+    \field{title}{The Kosterlitz-Thouless phase transition: an introduction for the intrepid student}
+    \verb{url}
+    \verb https://arxiv.org/abs/2207.13748
+    \endverb
+    \field{eprinttype}{arXiv}
+    \field{eprintclass}{cond-mat.stat-mech}
+    \field{year}{2022}
+  \endentry
+
+  \entry{hanada2018markovchainmontecarlo}{misc}{}
+    \name{author}{1}{}{%
+      {{hash=HM}{%
+         family={Hanada},
+         familyi={H\bibinitperiod},
+         given={Masanori},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{HM1}
+    \strng{fullhash}{HM1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \verb{eprint}
+    \verb 1808.08490
+    \endverb
+    \field{title}{Markov Chain Monte Carlo for Dummies}
+    \verb{url}
+    \verb https://arxiv.org/abs/1808.08490
+    \endverb
+    \field{eprinttype}{arXiv}
+    \field{eprintclass}{hep-th}
+    \field{year}{2018}
+  \endentry
+
+  \entry{10.1007/978-3-030-43465-6_11}{inproceedings}{}
+    \name{author}{4}{}{%
+      {{hash=HT}{%
+         family={Hartung},
+         familyi={H\bibinitperiod},
+         given={Tobias},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=JK}{%
+         family={Jansen},
+         familyi={J\bibinitperiod},
+         given={Karl},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=LH}{%
+         family={Le{\"o}vey},
+         familyi={L\bibinitperiod},
+         given={Hernan},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=VJ}{%
+         family={Volmer},
+         familyi={V\bibinitperiod},
+         given={Julia},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \name{editor}{2}{}{%
+      {{hash=TB}{%
+         family={Tuffin},
+         familyi={T\bibinitperiod},
+         given={Bruno},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=LP}{%
+         family={L'Ecuyer},
+         familyi={L\bibinitperiod},
+         given={Pierre},
+         giveni={P\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Springer International Publishing}%
+    }
+    \strng{namehash}{HT+1}
+    \strng{fullhash}{HTJKLHVJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \field{abstract}{%
+    In lattice field theory, the interactions of elementary particles can be computed via high-dimensional integrals. Markov-chain Monte Carlo (MCMC) methods based on importance sampling are normally efficient to solve most of these integrals. But these methods give large errors for oscillatory integrands, exhibiting the so-called sign problem. We developed new quadrature rules using the symmetry of the considered systems to avoid the sign problem in physical one-dimensional models for the resulting high-dimensional integrals. This article gives a short introduction to integrals used in lattice QCD where the interactions of gluon and quark elementary particles are investigated, explains the alternative integration methods we developed and shows results of applying them to models with one physical dimension. The new quadrature rules avoid the sign problem and can therefore be used to perform simulations at until now not reachable regions in parameter space, where the MCMC errors are too big for affordable sample sizes. However, it is still a challenge to develop these techniques further for applications with physical higher-dimensional systems.%
+    }
+    \field{booktitle}{Monte Carlo and Quasi-Monte Carlo Methods}
+    \field{isbn}{978-3-030-43465-6}
+    \field{pages}{231\bibrangedash 249}
+    \field{title}{Avoiding the Sign Problem in Lattice Field Theory}
+    \list{location}{1}{%
+      {Cham}%
+    }
+    \field{year}{2020}
+  \endentry
+
+  \entry{Hasenbusch_2005}{article}{}
+    \name{author}{1}{}{%
+      {{hash=HM}{%
+         family={Hasenbusch},
+         familyi={H\bibinitperiod},
+         given={Martin},
+         giveni={M\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {IOP Publishing}%
+    }
+    \strng{namehash}{HM2}
+    \strng{fullhash}{HM2}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{H}
+    \field{sortinithash}{H}
+    \verb{doi}
+    \verb 10.1088/0305-4470/38/26/003
+    \endverb
+    \field{issn}{1361-6447}
+    \field{number}{26}
+    \field{pages}{5869–5883}
+    \field{title}{The two-dimensionalXYmodel at the transition temperature: a high-precision Monte Carlo study}
+    \verb{url}
+    \verb http://dx.doi.org/10.1088/0305-4470/38/26/003
+    \endverb
+    \field{volume}{38}
+    \field{journaltitle}{Journal of Physics A: Mathematical and General}
+    \field{month}{06}
+    \field{year}{2005}
+  \endentry
+
+  \entry{KT}{article}{}
+    \name{author}{2}{}{%
+      {{hash=KJM}{%
+         family={{Kosterlitz}},
+         familyi={K\bibinitperiod},
+         given={J.\bibnamedelima M.},
+         giveni={J\bibinitperiod\bibinitdelim M\bibinitperiod},
+      }}%
+      {{hash=TDJ}{%
+         family={{Thouless}},
+         familyi={T\bibinitperiod},
+         given={D.\bibnamedelima J.},
+         giveni={D\bibinitperiod\bibinitdelim J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KJMTDJ1}
+    \strng{fullhash}{KJMTDJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \verb{doi}
+    \verb 10.1088/0022-3719/6/7/010
+    \endverb
+    \field{number}{7}
+    \field{pages}{1181\bibrangedash 1203}
+    \field{title}{{Ordering, metastability and phase transitions in two-dimensional systems}}
+    \field{volume}{6}
+    \field{journaltitle}{Journal of Physics C Solid State Physics}
+    \field{month}{04}
+    \field{year}{1973}
+  \endentry
+
+  \entry{perez2017filmvisualreasoninggeneral}{misc}{}
+    \name{author}{5}{}{%
+      {{hash=PE}{%
+         family={Perez},
+         familyi={P\bibinitperiod},
+         given={Ethan},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=SF}{%
+         family={Strub},
+         familyi={S\bibinitperiod},
+         given={Florian},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=dVH}{%
+         prefix={de},
+         prefixi={d\bibinitperiod},
+         family={Vries},
+         familyi={V\bibinitperiod},
+         given={Harm},
+         giveni={H\bibinitperiod},
+      }}%
+      {{hash=DV}{%
+         family={Dumoulin},
+         familyi={D\bibinitperiod},
+         given={Vincent},
+         giveni={V\bibinitperiod},
+      }}%
+      {{hash=CA}{%
+         family={Courville},
+         familyi={C\bibinitperiod},
+         given={Aaron},
+         giveni={A\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{PE+1}
+    \strng{fullhash}{PESFVHdDVCA1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{P}
+    \field{sortinithash}{P}
+    \verb{eprint}
+    \verb 1709.07871
+    \endverb
+    \field{title}{FiLM: Visual Reasoning with a General Conditioning Layer}
+    \verb{url}
+    \verb https://arxiv.org/abs/1709.07871
+    \endverb
+    \field{eprinttype}{arXiv}
+    \field{eprintclass}{cs.CV}
+    \field{year}{2017}
+  \endentry
+
+  \entry{ronneberger2015unetconvolutionalnetworksbiomedical}{misc}{}
+    \name{author}{3}{}{%
+      {{hash=RO}{%
+         family={Ronneberger},
+         familyi={R\bibinitperiod},
+         given={Olaf},
+         giveni={O\bibinitperiod},
+      }}%
+      {{hash=FP}{%
+         family={Fischer},
+         familyi={F\bibinitperiod},
+         given={Philipp},
+         giveni={P\bibinitperiod},
+      }}%
+      {{hash=BT}{%
+         family={Brox},
+         familyi={B\bibinitperiod},
+         given={Thomas},
+         giveni={T\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{ROFPBT1}
+    \strng{fullhash}{ROFPBT1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{R}
+    \field{sortinithash}{R}
+    \verb{eprint}
+    \verb 1505.04597
+    \endverb
+    \field{title}{U-Net: Convolutional Networks for Biomedical Image Segmentation}
+    \verb{url}
+    \verb https://arxiv.org/abs/1505.04597
+    \endverb
+    \field{eprinttype}{arXiv}
+    \field{eprintclass}{cs.CV}
+    \field{year}{2015}
+  \endentry
+
+  \entry{PhysRevLett.62.361}{article}{}
+    \name{author}{1}{}{%
+      {{hash=WU}{%
+         family={Wolff},
+         familyi={W\bibinitperiod},
+         given={Ulli},
+         giveni={U\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {American Physical Society}%
+    }
+    \strng{namehash}{WU1}
+    \strng{fullhash}{WU1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{W}
+    \field{sortinithash}{W}
+    \verb{doi}
+    \verb 10.1103/PhysRevLett.62.361
+    \endverb
+    \field{issue}{4}
+    \field{pages}{361\bibrangedash 364}
+    \field{title}{Collective Monte Carlo Updating for Spin Systems}
+    \verb{url}
+    \verb https://link.aps.org/doi/10.1103/PhysRevLett.62.361
+    \endverb
+    \field{volume}{62}
+    \field{journaltitle}{Phys. Rev. Lett.}
+    \field{year}{1989}
+    \warn{\item Invalid format of field 'month'}
+  \endentry
+\enddatalist
+\endinput
