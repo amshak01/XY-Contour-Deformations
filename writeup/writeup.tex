@@ -17,10 +17,15 @@
 \usetikzlibrary{positioning,arrows.meta,calc,shapes,decorations.pathmorphing}
 \usepackage{tikz-network}
 
+% Figure making loops
+\usepackage{pgffor}
+\usepackage{fmtcount} 
+
 % Figures and graphics
 \usepackage{graphicx}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{makecell} % put this in your preamble
 
 % Miscellaneous
 \usepackage{hyperref}
@@ -131,6 +136,11 @@ distance are varied, as well as produce new plots of the correlation function to
 \newpage
 
 \tableofcontents
+
+\newpage
+
+\listoffigures
+\listoftables
 
 \newpage
 
@@ -262,7 +272,7 @@ Nelson-Kosterlitz jump is smoothed out by finite-size effects, however the drop 
 
 $\Upsilon$ is formally defined through
 
-\begin{equation}
+\begin{equation} \label{eq:helicity}
 	\Upsilon = -\frac{\partial^2\mathcal{Z}(\alpha)}{\partial\alpha^2}\Big|_{\alpha=0} = \left\langle \sum_{\mathbf{r}\in\Lambda} \cos(\theta(\mathbf{r})-\theta(\mathbf{r}-a\hat{\mathbf{x}}))
 	+\left( \sum_{\mathbf{r}\in\Lambda} \sin(\theta(\mathbf{r})-\theta(\mathbf{r}-a\hat{\mathbf{x}})) \right)^2 \right\rangle
 \end{equation}
@@ -270,16 +280,22 @@ $\Upsilon$ is formally defined through
 The choice of the $x$ direction here is arbitrary, and if so desired, $\Upsilon$ can be recomputed exchanging $x$ for $y$ to average the two results
 and drive noise down further.
 
-Other quantities of diagnostic interest are the squared magnetization per site, which is the square of the generally
-nonzero net magnetization per site vector obtained from averaging together all spin vectors on the lattice:
+Other quantities of diagnostic interest are the magnetization per site, obtained from averaging together all spin vectors on the lattice:
 
 \begin{equation}
-	\left\langle \left|\frac{\mathbf{M}}{L^2}\right|^2 \right\rangle = \left\langle \left( \frac{1}{L^2}\sum_{\mathbf{r}\in\Lambda} \cos(\theta(\mathbf{r})) \right)^2 + \left( \frac{1}{L^2}\sum_{\mathbf{r}\in\Lambda} \sin(\theta(\mathbf{r})) \right)^2 \right\rangle
+	\left\langle \frac{\mathbf{M}}{L^2} \right\rangle = \left\langle \left( \sum_{\mathbf{r}\in\Lambda} \cos(\theta(\mathbf{r})) ,\,  \sum_{\mathbf{r}\in\Lambda} \sin(\theta(\mathbf{r})) \right) \right\rangle
+\end{equation}
+
+and the related magnetic suscptibility (per spin) obtained by analyzing the response of the magnetization to the addition of an external field $\mathbf{h}=(h,\,0)$ which contributes 
+a term $-h \sum_{\mathbf{r}\in \Lambda}\cos(\theta(\mathbf{r}))$ to the Hamiltonian:
+
+\begin{equation} \label{eq:susc}
+	\chi = \frac{\partial \langle|\mathbf{M}|\rangle}{\partial h}\big|_{h=0} = \frac{1}{T} \left( \langle |\mathbf{M}|^2 \rangle - \langle |\mathbf{M}| \rangle^2 \right)
 \end{equation}
 
 And the specific heat capacity:
 
-\begin{equation}
+\begin{equation} \label{eq:heat}
 	c_V = \frac{\langle H^2 \rangle - \langle H \rangle^2}{L^2 T^2}
 \end{equation}
 
@@ -315,27 +331,38 @@ will be required before the field is consistently fluctuating about equilibrium.
 Once a set of field configurations has been gathered, estimating an observable $\mathcal{O}$ that is a function of the field is as simple as computing
 
 \begin{equation}
-	\langle \mathcal{O} \rangle = \lim_{t \to \infty} \frac{1}{t-t_0} \sum_{i=t_0}^{t} \mathcal{O}[\theta^{(i)}]
+	\langle \mathcal{O} \rangle \approx \frac{1}{t-t_0} \sum_{i=t_0}^{t} \mathcal{O}[\theta^{(i)}]
 \end{equation}
 
+This estimate will become exact as $t$ runs to infinity.
+
 We may additionally be interested in estimating the noise on our observable, in which case the more sophisticated methods of bootstrap or jackknife resampling
-are required. There is also the issue of \textit{autocorrelation time}. We first define the \textit{autocorrelation}, which measures how correlated 
+are required. There is also the issue of \textit{autocorrelation time}. We first define the the \textit{autocorrelation}, which measures how correlated 
 the samples in a sequence are with one another, as:
 
 \begin{equation}
-	\rho(t) = \frac{\left\langle \theta^{(i)}\cdot\theta^{(i+t)} \right\rangle}{\sqrt{\mathrm{Var}[\theta^{(i)}]\cdot\mathrm{Var}[\theta^{(i+t)}]}}
+	\rho(t) = \frac{\left\langle \mathcal{O}[\theta^{(i)}]\cdot\mathcal{O}[\theta^{(i+t)}] \right\rangle}{\sqrt{\mathrm{Var}[\mathcal{O}[\theta^{(i)}]]\cdot\mathrm{Var}[\mathcal{O}[\theta^{(i+t)}]]}}
 	\in [0,\,1]
 \end{equation}
 
-Which depends only on the number of iterations or timesteps between when samples are drawn $t$ and not on the absolute step. Without delving too deeply into
-the rich field of time series analysis which involves the study of sequences of random variables, we will simply state that the autocorrelation
-is expected to decay exponentially with some characteristic time $\tau$.
+For a \textit{stationary} series, which sequences of MCMC samples are, this should depend only on $t$, not on $i$. Without delving too deeply into the rich field of time series analysis which involves the study of sequences of random variables, 
+we will simply state that the autocorrelation is expected to decay exponentially with some characteristic time.
+
+The Newey-West estimator for the \textit{integrated autocorrelation time}, which estimates the number of correlated samples that are equivalent to one independent sample, is 
+
+\begin{equation}
+	\hat{\tau} = 1 + 2\sum_{k=1}^{N}\hat{\rho}(k)\left(1 - \frac{k}{N+1} \right)
+\end{equation}
+
+With hats denoting estimators of these quantities using the available data. This is basically a "total" correlation, which estimates the area under the autocorrelation curve. We can use this integrated autocorrelation time to 
+determine the size of the blocks required to block bootstrapping, a method where we break the sequence into overlapping blocks and 
+resample them with replacement to estimate how much the mean or variance of the sequence would itself vary if we were to run the MCMC over and over again.
 
 Autocorrelations mean in practice that we only keep every $n$-th sample with $n$ on the order of $\tau$ to optimize the tradeoff between gaining new information and the computational cost
 of saving out field configurations and/or observable values. The presence of correlations between successive data points means that estimates of the mean of those points
 will converge to the true value far more slowly.
 
-A common choice of update is the Metropolis-Hastings algorithm, however Metropolis-Hastings is only designed to update one spin on the lattice at a time, therefore
+A common choice of MCMC update strategy is the Metropolis-Hastings algorithm, however Metropolis-Hastings is only designed to update one spin on the lattice at a time, therefore
 it suffers from critical slowing down near the phase transition. Unlike for quantum field theories, there is a solution to this problem for spin systems in the form
 of the Wolff cluster update \cite{PhysRevLett.62.361}.
 
@@ -373,7 +400,7 @@ in one dimension.
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=0.6\textwidth]{figures/sign.png}
-	\caption{An illustration of a numerical sign problem (courtesy of \cite{10.1007/978-3-030-43465-6_11}) for the case of an observable
+	\caption[Sign Problem Illustration]{An illustration of a numerical sign problem (courtesy of \cite{10.1007/978-3-030-43465-6_11}) for the case of an observable
 	which oscillates on the domain of integration. Small deviations in sampling may result in drastically different estimates
 	of the observable mean.}
 	\label{fig:sign_problem}
@@ -463,7 +490,7 @@ lines $\mathrm{Re}(\tilde{\phi}) = \phi_0,\,\phi_1$. A visual depiction is given
 	\begin{center}
 	\include{contour1_cartoon}
 	\end{center}
-	\caption{Allowed and disallowed contours for a general variable (courtesy of \cite{Detmold_2021}) $\theta$ and for a periodic variable $\phi$.
+	\caption[Vertical Shift Illustration]{Allowed and disallowed contours for a general variable (courtesy of \cite{Detmold_2021}) $\theta$ and for a periodic variable $\phi$.
 	In the case of a periodic variable the slice along the imaginary axis at each end of the interval is identified, 
 	so vertical shift deformations are allowed.}
 	\label{fig:contours}
@@ -550,7 +577,7 @@ without a strong background in machine learning. A strong understanding of how c
 for building the models we use throughout this project.  
 
 To set the stage, a neural network is not much more than a series of linear operations applied to an input, with nonlinear \textit{activation}
-functions stitching together successive outputs before applying the next linear operation. Each of those operations ia essentially a tensor of learnable parameters, or \textit{weights} that need
+functions stitching together successive outputs before applying the next linear operation. Each of those operations is essentially a tensor of learnable parameters, or \textit{weights} that need
 to be tuned, or \textit{trained} to optimize the output.
 
 Training the network involves searching the space of possible \textit{weights} in the model to locate a set of parameters that achieves minimization
@@ -579,21 +606,21 @@ is an important step in our use case to ensure periodicity is preserved by wrapp
 	\include{conv2d}
 	% \include{transpose_conv2d}
 	\end{center}
-	\caption{How a 2x2 convolution kernel sweeps over a 3x3 input grid with periodic paddingto produce a new 3x3 grid. The first two iterations are shown.
+	\caption[Convolution Demonstration]{How a 2x2 convolution kernel sweeps over a 3x3 input grid with periodic padding to produce a new 3x3 grid. The first two iterations are shown.
 	Notice the output grid is 3x3, since the kernel can be translated to the right (and down) 3 times before reaching the edge of the input.
 	A stride of 2 for example would produce a 2x2 output}
 	\label{fig:conv2d}
 \end{figure}
 
 Convolution can be used to increase the size of an input as well, through an operation called \textit{transpose convolution} wherein the kernel of weights
-moves across one site at a time, magnifying it to a $K \times K$ grid. All of the resultant grids are then lined up according to the position they 
+moves across one site at a time, magnifying it to a $K \times K$ grid. All the resultant grids are then lined up according to the position they 
 multiplied in the input layer, and overlapping values are summed. A simple transpose convolution is illustrated in \ref{fig:transconv2d}
 
 \begin{figure}[h]
 	\begin{center}
 	\include{transpose_conv2d}
 	\end{center}
-	\caption{How the transpose operation works by magnifying each site of the input image. Notice that the next iteration shown 
+	\caption[Transpose Convolution Demonstration]{How the transpose operation works by magnifying each site of the input image. Notice that the next iteration shown 
 	on the right will overlap the values 4 and 2 from the first iteration. After all iterations are performed, the resultant
 	grids are summed together (with the blank spaces being zero)}
 	\label{fig:transconv2d}
@@ -661,7 +688,7 @@ demonstrates this idea assuming the model were to learn simply to solve the Pois
 		\includegraphics[width=\textwidth]{figures/smeared.png}
 		\caption*{Shift field}
 	\end{minipage}
-	\caption{The input mask (left) with point sources at $(0,0)$ and $(16,16)$ on a $32\times 32$ lattice passes through a convolutional network. 
+	\caption[Input Mask and Output]{The input mask (left) with point sources at $(0,0)$ and $(16,16)$ on a $32\times 32$ lattice passes through a convolutional network. 
 	to produce a shift field which is "smeared out" across the entire lattice.}
 	\label{fig:mask_to_shift}
 \end{figure}
@@ -675,7 +702,7 @@ As a springboard for further investigation, we began by using a single convoluti
 only has $K\times K$ parameters, meaning the training routine to optimize these parameters is quick, as is generating the shift masks. The limited
 expressivity of such a network means that we cannot expect it to generalize well to arbitrary separation and temperature.
 
-With one convolutional layer there is also the fact that the point sources on the input mask can only be smeared out as far as $K$ from their position.
+With one convolutional layer there is also the fact that the point sources on the input mask can only be smeared out as far as $K/2$ from their position.
 For this reason we might expect the 1-layer network to work best when the "true" shift field is highly localized around the source and sink. Another way
 of looking at this is using the analogy to electrostatics --- the electric field due to two point sources that are sufficiently far apart will mimic
 the field due to only one of the charges when in the vicinity of that charge. 
@@ -705,7 +732,7 @@ as much as possible via vertical shift deformation, while of course the mean is 
 In order to build a network that is sufficiently expressive for generalizing to arbitrary temperature and separation, we turn to the 
 U-Net architecture, originally proposed in \cite{ronneberger2015unetconvolutionalnetworksbiomedical}, with some adjustments.
 
-The U-Net was originally developed for biomedical image segmentation, to identify the the structures formed by neurons in 
+The U-Net was originally developed for biomedical image segmentation, to identify the structures formed by neurons in 
 2D scans from electron microscopes. The original U-Net consists of three basic steps:
 
 \begin{itemize}
@@ -732,7 +759,7 @@ The U-Net was originally developed for biomedical image segmentation, to identif
 	\begin{center}
 	\includegraphics[width=0.6\textwidth]{figures/SiLU.png}
 	\end{center}
-	\caption{SiLU activation function}
+	\caption[SiLU Activation]{SiLU activation function}
 	\label{fig:silu}
 \end{figure}
 
@@ -755,24 +782,74 @@ If at some stage of the network, in our case right after the first convolution o
 
 \begin{figure}
 	\begin{center}
-	\includegraphics[width=\textwidth]{figures/UNet.png} \\
-	\vspace{1cm}
-	\includegraphics[width=0.4\textwidth]{figures/FiLM.png}
+	\includegraphics[width=\textwidth]{figures/UNet.png}
 	\end{center}
-	\caption{Top: The U-Net architecture we use in this project. Here we only depict the network with 3 levels to the "U", but
+	\caption[U-Net Block Diagram]{The U-Net architecture we use in this project. Here we only depict the network with 3 levels to the "U", but
 	it is easy to extend to an arbitrary number of levels, as long as the length and width of the layer remains integer, of course.
 	At each level during the encoder step, a FiLM layer is applied to introduce a dependence on temperature. The final layer
 	at each decoder step is saved and appended to the corresponding layer at each decoding step to preserve important long-range
 	structure information. The 3rd dimension of each block in the diagram represents the number of channels, and is labeled in the first two
-	levels. We double the number of channels at each encoder level, and halve them at each decoder level. \\
-	Bottom: The MLP implicit in each FiLM layer. The scalar input is the temperature and the output is two times the number of
-	channels at each decoder level. Half of the outputs are used for scaling, the other half for bias.}
+	levels. We double the number of channels at each encoder level, and halve them at each decoder level.}
 	\label{fig:unet}
 \end{figure}
 
-As we will ultimately be working with a $128\times128$ lattice, we choose to let the image size at the bottom of the U-Net
-be $16\times16$, meaning there will be three FiLM MLPs. In total, there are $7,681$ learnable parameters, around
-half of the number of angles on the lattice. 
+\begin{figure}
+	\begin{center}
+		\includegraphics[width=0.4\textwidth]{figures/FiLM.png}
+	\end{center}
+	\caption[Multilayer Perceptron for FiLM]{The MLP implicit in each FiLM layer. The scalar input is the temperature and the output is two times the number of
+	channels at each decoder level. Half of the outputs are used for scaling, the other half for bias.}
+	\label{fig:film}
+\end{figure}
+
+We will ultimately be working with a $128\times128$ lattice, and we choose to let the image size at the bottom of the U-Net
+be $4\times4$, meaning there will be six FiLM MLPs. In total, there are $120,993$ learnable parameters. The full structure of
+the model is as described in \ref{table:unet}.
+
+% requires \usepackage{makecell}
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.6} % extra vertical space above/below rows
+\small
+\begin{tabular}{|l|l|c|c|c|}
+\hline
+Stage & Operations & Kernel/Stride & Channels & Out Size \\
+\hline
+Enc 1 & \makecell[l]{Conv (Expand) $\to$ SiLU $\to$ FiLM \\ $\to$ Conv (Refine) $\to$ SiLU $\to$ Pool}
+& \makecell[c]{$3\times3$/1 (Conv) \\ $2\times2$/2 (Pool)} & $1 \to 2$ & $64\times64$ \\
+\noalign{\hrule height 0.2pt}
+Enc 2 & \makecell[l]{Conv (Expand) $\to$ SiLU $\to$ FiLM \\ $\to$ Conv (Refine) $\to$ SiLU $\to$ Pool}
+& \makecell[c]{$3\times3$/1 (Conv) \\ $2\times2$/2 (Pool)} & $2 \to 4$ & $32\times32$ \\
+\noalign{\hrule height 0.2pt}
+Enc 3 & \makecell[l]{Conv (Expand) $\to$ SiLU $\to$ FiLM \\ $\to$ Conv (Refine) $\to$ SiLU $\to$ Pool}
+& \makecell[c]{$3\times3$/1 (Conv) \\ $2\times2$/2 (Pool)} & $4 \to 8$ & $16\times16$ \\
+\noalign{\hrule height 0.2pt}
+Enc 4 & \makecell[l]{Conv (Expand) $\to$ SiLU $\to$ FiLM \\ $\to$ Conv (Refine) $\to$ SiLU $\to$ Pool}
+& \makecell[c]{$3\times3$/1 (Conv) \\ $2\times2$/2 (Pool)} & $8 \to 16$ & $8\times8$ \\
+\hline
+Bottom & \makecell[l]{Conv (Expand) $\to$ SiLU $\to$ FiLM \\ $\to$ Conv (Refine) $\to$ SiLU}
+& \makecell[c]{$3\times3$/1 (Conv)} & $16 \to 32$ & $4\times4$ \\
+\hline
+Dec 1 & \makecell[l]{ConvT $\to$ Concat $\to$ Conv (Reduce) \\ $\to$ SiLU $\to$ Conv (Refine) $\to$ SiLU}
+& \makecell[c]{$2\times2$/2 (ConvT) \\ $3\times3$/1 (Conv)} & $32 \to 16$ & $8\times8$ \\
+\noalign{\hrule height 0.2pt}
+Dec 2 & \makecell[l]{ConvT $\to$ Concat $\to$ Conv (Reduce) \\ $\to$ SiLU $\to$ Conv (Refine) $\to$ SiLU}
+& \makecell[c]{$2\times2$/2 (ConvT) \\ $3\times3$/1 (Conv)} & $16 \to 8$ & $16\times16$ \\
+\noalign{\hrule height 0.2pt}
+Dec 3 & \makecell[l]{ConvT $\to$ Concat $\to$ Conv (Reduce) \\ $\to$ SiLU $\to$ Conv (Refine) $\to$ SiLU}
+& \makecell[c]{$2\times2$/2 (ConvT) \\ $3\times3$/1 (Conv)} & $8 \to 4$ & $32\times32$ \\
+\noalign{\hrule height 0.2pt}
+Dec 4 & \makecell[l]{ConvT $\to$ Concat $\to$ Conv (Reduce) \\ $\to$ SiLU $\to$ Conv (Refine) $\to$ SiLU}
+& \makecell[c]{$2\times2$/2 (ConvT) \\ $3\times3$/1 (Conv)} & $4 \to 2$ & $64\times64$ \\
+\noalign{\hrule height 0.2pt}
+Out & \makecell[l]{Conv}
+& \makecell[c]{$3\times3$/1 (Conv)} & $2 \to 1$ & $128\times128$ \\
+\hline
+\end{tabular}
+\caption[U-Net Architecture Tabulated]{The U-Net structure in tabular format. Expand/Reduce/Refine refer to doubling/halving/preserving the number of channels, respectively.
+Note that we are implementing pooling and transpose convolution with size 2 to halve/double the image size.}
+\label{table:unet}
+\end{table}
 
 In order to train the model to generalize to arbitrary temperature and separation, we must improve on the loss function $\ref{eq:loss}$, in which $\mathcal{Q}$
 is explicitly a function of $\mathbf{r}$ and implicitly depends on temperature $T$. We write the generalized loss as
@@ -785,24 +862,191 @@ where $f$ and $g$ have \textit{support} on the sets $\{\mathbf{r} \,|\, \mathbf{
 and $[T_{\min},\,T_{\max}]$ will do. As discussed in \cite{albergo2025netsnonequilibriumtransportsampler}, optimizing loss functions of this type will lead the network 
 to individually minimize each contribution to the sum/integral, which is exactly what we hope to achieve --- optimal performance over all separations and temperatures. We opt 
 for a particular simple choice of the functions $f$ and $g$, setting them to unity and treating all separations and temperatures on equal footing. If we instead wanting sampling
-to be uniform in $\beta=1/T$, we would choose $\rho(T)=\left| d\beta/dT \right|=1/T^2$.
+to be uniform in $\beta=1/T$, we would choose $\rho(T)=\left| d\beta/dT \right|=1/T^2$. 
 
 \subsubsection{Training Procedure}
 
-In pratice, we use $4500$ thermalized configurations for temperatures between $0.7$ and $1.1$ in increments of $0.01$, leading to nearly $200,000$ total samples for training of the U-Net.
-On top of this, there are $16,384$ possible choices of $\mathbf{r}$ on any one of those lattices.
+In practice, we use $18000$ thermalized configurations for temperatures between $0.7$ and $1.1$ in increments of $0.01$, leading to nearly $200,000$ total samples for training of the U-Net.
+On top of this, there are $16,384$ possible choices of $\mathbf{r}$ on any one of those lattices. Instead of computing $\mathcal{L}$ using the full dataset, we approximate it
+using small batches. On average, this means the optimization procedure will become noisier, but this stochasticity can be a boon when trying to escape shallow local minima of the loss function.
+
+Each batch will therefore contain $B$ configurations sampled from the total $18000\times41$ configurations across all temperatures, along with the
+associated temperatures and a set of randomized separations. Averaging $\left(\mathrm{Re}\,\mathcal{Q}\right)^2$ across the batch will then provide
+a noisy estimate of the full loss. Once the full dataset has been iterated through in batches, one \textit{epoch} is completed.
+
+We utilize the ADAM optimizer as proposed originally in \cite{kingma2017adammethodstochasticoptimization}, which is a variant of stochastic gradient descent that incorporates 
+a momentum an memory of past gradients to boost performance. We refer the reader to the original paper for the details, as this is not a main focus of the project. 
+
+Both the 1-layer and U-Net loss functions were optimized in the same way.
 
 \section{Implementation}
 
 The entire codebase for this project is available \href{https://github.com/amshak01/XY-Contour-Deformations}{here on GitHub}. In this
-section we review the software implementation of the MCMC sampling and deformation of the correlator used. The sampling algorithm
-is implemented in C, while the machine learning routines and data post-processing are done in Python files and notebooks.
+section we review the software used in the MCMC sampling, machine learning models, and analysis of the results.
 
 \subsection{Data Generation and Storage}
 
-\subsection{PyTorch}
+The MCMC sampling is done in C. The algorithm first "thermalizes" by running the first 10\% of iterations without writing out any data, 
+then writing out every tenth data point over the remaining number of iterations. For example to generate the training data as described 
+in the previous section, $2\times10^5$ iterations were done to result in $0.9\times2\times10^4$ samples. The lattice is stored in a one-dimension array of length $128\times128$ and 
+row-major indexing is used to reference individual angles for computing the Wolff probability.
+
+At each step, the cluster is formed by storing the memory location of each angle added to the cluster in a first-in-first-out stack, and
+the indices of the angles in the parent array are stored in separate stack so that when cluster formation terminates the stack can be
+emptied in linear time, updating the angles to reflect the directions of the spins once flipped.
+
+Every tenth iteration, all bits in the lattice array are written out in sequence to a binary file. We then loop over temperature
+and generate a new file for each temperature. Doubles are used so each angle is allotted 64 bits of precision at the sampling level.
+
+\subsection{Observables and Machine Learning Routines}
+
+Using the NumPy package, the binary files written out by the MCMC sampler can be read into a Python program in the format of an $N_\mathrm{samples}\times 128 \times 128$ NumPy array.
+We then convert the configurations into PyTorch tensors with angles truncated to 32 bits. Tensors in PyTorch, like NumPy arrays, are computationally must faster to work with as operations on them
+are heavily parallelized in either C++ or CUDA/HIP depending on the availability of a suitable GPU. PyTorch tensors are also equipped to store
+gradients with respect to their elements, so as a series of operations are carried out on them, PyTorch builds a compute graph so the gradients can be backpropagated for optimization.
+
+PyTorch also provides a rich neural network class, which can be subclassed to access various modules for convolution and pooling, activation functions,
+and linear layers for MLPs. Neural networks in PyTorch are also intended to operate directly on batches, so during optimization tensors of shape $B\times 128 \times 128$
+along with 1D tensors of length $B$ for associated temperature and ramdom $x$ and $y$ separations are fed into the network. The network output is then used to compute
+the deformed correlator so the scalar batch loss (actually a $1\times1$ tensor) can be computed. PyTorch then updates the weights using the ADAM
+procedure.
+
+Computations were done locally on a laptop equipped with an AMD Radeon RX 7700S, so HIP could be leveraged.
 
 \section{Results}
+
+\subsection{Diagnostic Observables}
+
+We begin by inspecting the temperature dependence of the observables \ref{eq:susc}, \ref{eq:helicity}, and \ref{eq:heat}. Using the training samples we compute
+these observables at temperatures from $0.7$ to $1.1$ in increments of $0.01$. We assess the autocorrelation time of each observable and apply block bootstrapping \cite{10.1214/aos/1176347265}
+to compute 95\% confidence intervals on each point. We will also apply this method to the correlation function later.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.55\textwidth]{figures/obs/susc.png}
+	\includegraphics[width=0.55\textwidth]{figures/obs/helicity.png}
+	\includegraphics[width=0.55\textwidth]{figures/obs/heat_capacity.png}
+	\caption[Diagnostic observables]{Susceptibility, helicity modulus, and specific heat as a function of temperature with block bootstrapped 95\% confidence intervals.
+	We see the characteristic drop in helicity modulus to zero, as well as the peaking of the susceptibility characteristic of the phase transition. The peak
+	in the specific heat is not due to the phase transition but rather another known feature of the model that confirms our sampling is working correctly.}
+	\label{fig:observables}
+\end{figure}
+
+\subsection{1-Layer Network Preliminary Results}
+
+In this section and the following section on the U-Net we compute the correlator on a validation set, which is a smaller dataset containing $4500$ configurations at temperatures
+between $0.8$ and $1.0$ in increments of $1.01$. We use a smaller dataset mostly for time, as evaluating the shift field and deformed Hamiltonian are expensive
+operations. We also require a separate dataset than the data the networks have been trained on to demonstrate that improvements are not simply due to overfitting.
+
+The 1 layer network is investigated primarily to understand if a learned vertical shift field can provide meaningful reduction in variance as the theory predicts.
+As aforementioned, the 1 layer network is only trained on one separation and temperature at a time, which limits its use in computing the correlation function
+over the entire lattice. We investigate the variance reduction the 1 layer network is able to achieve at maximum separation in both directions, over a range of temperatures,
+three of which are displayed in \ref{fig:1layerhist}. We use kernel of odd-number width, $21\times21$ so that the source and sink will both be centered 
+within the local shifts that are learned in their vicinity. 
+
+We also investigate the shape of the shift field learned at temperature $1.0$, which is shown in figure \ref{fig:1layershift}. We see that the source and sink
+are learned to be the absolute minima and maxima of the shift field, as we expect from theory, and the magnitude of the shifts falls off smoothly
+as distance from the source/sink increases. Note that in these plots the y-axis is mirrored, so the origin is the top left.
+
+The deformation has the effect of "squeezing" the distribution of points in both the imaginary and real direction, so that points no longer lie on the unit 
+circle in the complex plane. As seen in the marginal distributions of \ref{fig:1layerhist}, the points are more tightly distributed around the mean in 
+both directions, demonstrating visually the significant reduction in variance.
+
+Seeing this improvement even with a relatively small kernel provides strong grounds for moving a more expressive network architecture, so that we can train once
+on the full dataset and produce shift fields for any separation and temperature to compute the deformed correlator across the full lattice.
+
+\newcommand{\Nrows}{3} 
+
+\begin{figure}[htp]
+	\centering
+	\foreach \i in {0,...,\numexpr\Nrows-1} {%
+		\includegraphics[width=0.8\textwidth]{figures/1layer_hists/temp_\i.png}
+	}
+	\caption[1 Layer Network Histograms]{Histograms of the undeformed and deformed correlator using the shift field generated by the 1 layer network at 
+	various temperatures and at maximum separation in both directions. It is clear that the 1 layer network struggles more with lower temperatures. Notice
+	the 'squeezing' of the histogram when deformation is applied, bringing points off of the unit circle in the complex plane. We also see that as temperature increases, 
+	the marginal distributions slowly flow from unimodal to bimodal.}
+	\label{fig:1layerhist}
+\end{figure}
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.6\textwidth]{figures/1layershifts.png}
+	\caption[1 layer shifts]{Shift field learned by the 1 layer network at maximum separation for temperature $T=1.0$. The shifts are confined to 
+	within 10 sites of the source and sink. We can clearly see that the source and sink are the absolute minima and maxima of the shift field, as
+	we expect from the theory.}
+	\label{fig:1layershift}
+\end{figure}
+
+\subsection{U-Net Results}
+
+We begin our analysis of the U-Net performance by looking at the same histograms as for the 1-layer network, of course now deforming using the shift field produced by the trained U-Net.
+These histograms are shown in \ref{fig:unethist}. We immediately see with the same data that there is significantly more improvement across the board, especially at lower
+temperatures where the data collapses to a tight unimodal distribution around the mean value.
+
+\begin{figure}[htp]
+	\centering
+	\foreach \i in {0,...,\numexpr\Nrows-1} {%
+		\includegraphics[width=0.8\textwidth]{figures/unet_hists/temp_\i.png}
+	}
+	\caption[U-Net Histograms]{Histograms of the undeformed and deformed correlator using the shift field generated by the U-Net at 
+	various temperatures and at maximum separation in both directions. The U-Net clearly outperforms the 1-layer network at all temperatures ---
+	the histograms are "squeezed" far more heavily, and, in fact, points flow to the right around the circle to a larger degree as well.}
+	\label{fig:unethist}
+\end{figure}
+
+We also investigate the autocorrelation between the undeformed and deformed samples at these temperatures. We might expect that because the deformed observable is
+now nonlocal and involves a sum over the whole lattice that autocorrelations will be stronger. Recall that the samples drawn are also not at successive timesteps, but
+rather at every 10th timestep --- meaning that for the deformed samples to be sufficiently decorrelated, the lattice must change fairly significantly every ten steps. We 
+plot the autocorrelation as a function of how many intervals of ten the samples are separated by in \ref{fig:acf}. It appears that across the temperatures included in 
+the data there is no meaningful degradation introduced by deformation --- the autocorrelation curves before and after deforming decay over a similar timescale.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.495\textwidth]{figures/acf/undef.png}
+	\includegraphics[width=0.495\textwidth]{figures/acf/def.png}
+	\caption[Autocorrelations]{Autocorrelation functions for the undeformed and U-Net deformed observable at various temperatures across the validation data.}
+	\label{fig:acf}
+\end{figure}
+
+Next we investigate the geometry of shift field over a range of temperatures still at max separation in \ref{fig:unet_max_shifts}. Before discussing the behavior we note 
+there is an ambiguity in the definition of the vertical shifts which has not been of particular significance until now. The deformed observable will be agnostic to 
+an overall constant added to the shift field, as the deformed Hamiltonian is only sensitive to differences between neighboring shifts. The U-Net therefore may therefore 
+assign a different overall constant to different separations and temperatures. To address this, and to compare various temperatures and separations on the same color scale, 
+we compute the mean across the full shift field and subtract it off. In theory we expect the mean to be halfway between the source and the sink values, however due to
+noise this may not always be exactly the case.
+
+We see visually that the form of the shift field is highly reminiscent of an electric potential, although the exact shape is expected to differ due to noise and higher
+order corrections to the shift field. Even in the regime where higher order effects are suppressed, the U-Net demonstrates an ability to
+correctly regularize a solution to Poisson's equation, and handle periodic boundary conditions correctly.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/unet_max_shifts.png}
+	\caption[U-Net Max Shifts]{Shift fields produced by the U-Net over a range of temperatures for the maximum possible separation. We see again
+	that the U-Net preserves the source and sink as local minima/maxima, this time learning a shift field that spans the full lattice and behaves
+	visually Poisson-like.}
+	\label{fig:unet_max_shifts}
+\end{figure}
+
+We also provide the shift field at an arbitrarily chosen separation in \ref{fig:unet_alt_shifts} to demonstrate how the field changes when the source and sink
+are moved relative to each other. Again the behavior is very reminiscent of the solution to a Poisson equation.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/unet_alt_shifts.png}
+	\caption[U-Net Alternate Shifts]{Shift fields produced by the U-Net over a range of temperatures for the separation $(21, 32)$, to illustrate how the field
+	behaves as the relative positions of the source and sink are varied.}
+	\label{fig:unet_alt_shifts}
+\end{figure}
+
+\subsubsection{Projected Correlations}
+
+In lattice field theory we are typically interested in \textit{momentum projected} correlation functions, where in the case of $1+1$ dimensional theories we would
+integrate out the spatial dependence to retain only the correlations between different points in time. In $2$ spatial dimensions (mappable onto the $1+1$ case by Wick rotation), 
+we integrate out either the $x$ or $y$ coordinate. This is referred to as momentum projection as integrating over one dimension is the same as setting the
+corresponding coordinate in momentum space to zero. 
+
 
 \section{Conclusion}
 
@@ -810,10 +1054,11 @@ is implemented in C, while the machine learning routines and data post-processin
 
 	\section{KT-Theory}
 
-	\section{FCNs}
-
-	\section{Statistics }
+	\section{Statistics}
 
 \end{appendices}
+
+\newpage
+\printbibliography
 
 \end{document}

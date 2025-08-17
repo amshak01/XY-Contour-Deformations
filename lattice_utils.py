@@ -185,6 +185,27 @@ def deformed_corr_2d(lats, temps, shifts, x_seps, y_seps, ham=xy_hamiltonian):
     return corr_2d(shifted, x_seps, y_seps) * reweighting
 
 
+def undeformed_projected_corrs(lats, x_seps):
+
+    phis = torch.exp(1j * lats).sum(dim=1)  # sum over y-axis
+    # shape should now be (B, L)
+    corrs = np.zeros((phis.size(0), x_seps.size), dtype=np.float32)
+    L = lats.size(-1)
+
+    for i in range(len(x_seps)):
+        dt = x_seps[i]
+
+        avg = torch.zeros_like(phis[:, 0], dtype=torch.complex64)
+
+        for j in range(L):
+            avg += phis[:, j] * phis[:, (j + dt) % L].conj()
+
+        avg /= L
+        corrs[:, i] = avg.cpu().numpy().real
+
+    return corrs
+
+
 def helicity_modulus(lats, T):
     """Computes the contributions to the spin stiffness for a set of lattice configurations
 
@@ -193,7 +214,7 @@ def helicity_modulus(lats, T):
         T (float): Temperature at which the configurations were sampled
 
     Returns:
-        ndarray: numpy array of floats with shape (N,) containing the contributions
+        Tensor: 1D tensor of floats with shape (N,) containing the contributions
     """
 
     L = lats.shape[-1]
@@ -203,106 +224,18 @@ def helicity_modulus(lats, T):
     cosine_term = torch.cos(lats - roll_x).sum((-1, -2))
     sine_term = torch.square(torch.sin(lats - roll_x).sum((-1, -2)))
 
-    return ((cosine_term / (L**2)) - (beta * (sine_term / (L**2)))).numpy().real
+    return ((cosine_term / (L**2)) - (beta * (sine_term / (L**2)))).real
 
 
-def mean_squared_mag(lats):
-    """Computes the contributions to the mean-squared magnetization for a set of lattice configurations
+def mag(lats):
+    """Computes the contributions to the magnetization for a set of lattice configurations
 
     Args:
         lats (Tensor): tensor of shape (N,L,L) with N configs of lattice size L
 
     Returns:
-        ndarray: numpy array of floats with shape (N,) containing the contributions
+        Tensor: 1D tensor of floats with shape (N,) containing the contributions
     """
 
-    L = lats.shape[-1]
-    N = L**2
-    mag_squared = (torch.exp(1j * lats).sum((-2, -1))) * (torch.exp(-1j * lats).sum((-2, -1)))
-    return mag_squared.numpy().real / (N**2)
-
-
-def plot_hists(initial, deformed, fig=None):
-    if hasattr(initial, "detach"):
-        initial = initial.detach().cpu().numpy()
-    if hasattr(deformed, "detach"):
-        deformed = deformed.detach().cpu().numpy()
-
-    xi, yi = initial.real, initial.imag
-    xf, yf = deformed.real, deformed.imag
-
-    xlim = (-1, 1)
-    ylim = (-1, 1)
-
-    if fig is None:
-        fig, axes = plt.subplots(1, 2, figsize=(14, 6))
-    else:
-        axes = fig.subplots(1, 2)
-
-    for i, (x, y, ax_main, xlabel, ylabel) in enumerate(
-        [
-            (xi, yi, axes[0], "Re($\\mathcal{O}$)", "Im($\\mathcal{O}$)"),
-            (xf, yf, axes[1], "Re($\\mathcal{Q}$)", "Im($\\mathcal{Q}$)"),
-        ]
-    ):
-        # --- Divider for marginals and colorbar ---
-        divider = make_axes_locatable(ax_main)
-        ax_x = divider.append_axes("top", size="20%", pad=0.05, sharex=ax_main)
-        ax_y = divider.append_axes("right", size="20%", pad=0.05, sharey=ax_main)
-        cbar_ax = divider.append_axes("bottom", size="5%", pad=0.3)
-
-        # --- 2D Histogram ---
-        h = ax_main.hist2d(x, y, bins=50, range=[xlim, ylim], cmap="viridis", norm=Normalize(vmin=0))
-
-        # --- Marginal KDEs ---
-        def plot_kde(ax, data, axis):
-            kde = gaussian_kde(data)
-            grid = np.linspace(-1, 1, 500)
-            density = kde(grid)
-            if axis == "x":
-                ax.plot(grid, density, color="black")
-            else:
-                ax.plot(density, grid, color="black")
-
-        plot_kde(ax_x, x, "x")
-        plot_kde(ax_y, y, "y")
-
-        # --- Cleanup ---
-        ax_main.set_xlim(xlim)
-        ax_main.set_ylim(ylim)
-        ax_main.set_aspect("equal")
-        ax_main.axvline(np.mean(x), color="white", linestyle="--")
-        ax_main.axhline(np.mean(y), color="white", linestyle="--")
-
-        ax_main.set_xlabel(xlabel)
-        ax_main.set_ylabel(ylabel)
-
-        for ax in [ax_x, ax_y]:
-            ax.tick_params(left=False, bottom=False, labelleft=False, labelbottom=False)
-            ax.set_facecolor("none")
-
-        # --- Colorbar (now same width as plot) ---
-        cb = fig.colorbar(h[3], cax=cbar_ax, orientation="horizontal")
-        cb.set_label("Counts")
-
-        # --- Stats box ---
-        x_mean, y_mean = np.mean(x), np.mean(y)
-        x_var, y_var = np.var(x), np.var(y)
-        stat_txt = (
-            f"$\\mu_x$ = {x_mean:.4f}\n"
-            f"$\\mu_y$ = {y_mean:.4f}\n"
-            f"$\\sigma^2_x$ = {x_var:.4f}\n"
-            f"$\\sigma^2_y$ = {y_var:.4f}"
-        )
-        ax_main.text(
-            0.02,
-            0.02,
-            stat_txt,
-            transform=ax_main.transAxes,
-            fontsize=10,
-            verticalalignment="bottom",
-            bbox=dict(facecolor="white", edgecolor="black", boxstyle="round,pad=0.3"),
-        )
-
-    fig.tight_layout(pad=0.5)  # Reduce internal padding
-    return fig
+    mag = torch.exp(1j * lats).sum((-2, -1))
+    return mag / lats.shape[-1] ** 2

@@ -299,7 +299,7 @@
     \field{issn}{1361-6447}
     \field{number}{26}
     \field{pages}{5869–5883}
-    \field{title}{The two-dimensionalXYmodel at the transition temperature: a high-precision Monte Carlo study}
+    \field{title}{The two-dimensional XYmodel at the transition temperature: a high-precision Monte Carlo study}
     \verb{url}
     \verb http://dx.doi.org/10.1088/0305-4470/38/26/003
     \endverb
@@ -307,6 +307,39 @@
     \field{journaltitle}{Journal of Physics A: Mathematical and General}
     \field{month}{06}
     \field{year}{2005}
+  \endentry
+
+  \entry{kingma2017adammethodstochasticoptimization}{misc}{}
+    \name{author}{2}{}{%
+      {{hash=KDP}{%
+         family={Kingma},
+         familyi={K\bibinitperiod},
+         given={Diederik\bibnamedelima P.},
+         giveni={D\bibinitperiod\bibinitdelim P\bibinitperiod},
+      }}%
+      {{hash=BJ}{%
+         family={Ba},
+         familyi={B\bibinitperiod},
+         given={Jimmy},
+         giveni={J\bibinitperiod},
+      }}%
+    }
+    \strng{namehash}{KDPBJ1}
+    \strng{fullhash}{KDPBJ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \verb{eprint}
+    \verb 1412.6980
+    \endverb
+    \field{title}{Adam: A Method for Stochastic Optimization}
+    \verb{url}
+    \verb https://arxiv.org/abs/1412.6980
+    \endverb
+    \field{eprinttype}{arXiv}
+    \field{eprintclass}{cs.LG}
+    \field{year}{2017}
   \endentry
 
   \entry{KT}{article}{}
@@ -340,6 +373,39 @@
     \field{journaltitle}{Journal of Physics C Solid State Physics}
     \field{month}{04}
     \field{year}{1973}
+  \endentry
+
+  \entry{10.1214/aos/1176347265}{article}{}
+    \name{author}{1}{}{%
+      {{hash=KHR}{%
+         family={Kunsch},
+         familyi={K\bibinitperiod},
+         given={Hans\bibnamedelima R.},
+         giveni={H\bibinitperiod\bibinitdelim R\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Institute of Mathematical Statistics}%
+    }
+    \keyw{bootstrap, influence function, jackknife, statistics defined by functionals, time series, variance estimation}
+    \strng{namehash}{KHR1}
+    \strng{fullhash}{KHR1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{K}
+    \field{sortinithash}{K}
+    \verb{doi}
+    \verb 10.1214/aos/1176347265
+    \endverb
+    \field{number}{3}
+    \field{pages}{1217 \bibrangedash  1241}
+    \field{title}{{The Jackknife and the Bootstrap for General Stationary Observations}}
+    \verb{url}
+    \verb https://doi.org/10.1214/aos/1176347265
+    \endverb
+    \field{volume}{17}
+    \field{journaltitle}{The Annals of Statistics}
+    \field{year}{1989}
   \endentry
 
   \entry{perez2017filmvisualreasoninggeneral}{misc}{}

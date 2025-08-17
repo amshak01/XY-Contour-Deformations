@@ -1,4 +1,5 @@
 import numpy as np
+from statsmodels.tsa.stattools import acf
 
 def bin_bootstrap(data, stat, nboot, level):
     """Bootstrap correlated data using bins of size determined by ac length
@@ -14,41 +15,40 @@ def bin_bootstrap(data, stat, nboot, level):
     """
 
     # Compute bin size from acf
-    thresh = 2 / np.sqrt(data.size)
-    binsize = np.argmax(np.abs(acf(data, length=25)) < thresh) + 1
-    # print(binsize)
+    autocorr = acf(data, nlags=50)[1:]
+    n = autocorr.size
+    taper = 1 - np.arange(1, n + 1) / (n + 1)
+    int_act = 1 + 2 * np.sum(taper * autocorr)
+    blocksize = int(np.ceil(2 * int_act))
+    # print(blocksize)
 
-    # Cut off trailing data points so length divisible by bin size
-    # (need to find a better way but this is fine for now)
-    cut = data.size % binsize
-    samples = data[: data.size - cut]
-
-    binned = np.reshape(samples, shape=(-1, binsize))
-    n_bins = binned.shape[0]
+    blocks = [data[i:i+blocksize] for i in range(0, len(data) - blocksize + 1)]
     boots = np.zeros(nboot)
 
+    # Apply overlapping block boostrap as in Kunsch et al.
     for i in range(nboot):
-        resampled = binned[np.random.randint(0, n_bins, size=n_bins), :].flatten()
-        boots[i] = stat(resampled)
+        resampled_blocks = np.random.choice(len(blocks), size=int(np.ceil(len(data) / blocksize)), replace = True)
+        resampled = np.concatenate([blocks[i] for i in resampled_blocks])
+        boots[i] = stat(resampled[:len(data)])
 
     alpha = 1 - (level / 100)
-    upper = np.quantile(boots, alpha / 2)
-    lower = np.quantile(boots, 1 - alpha / 2)
+    upper = np.quantile(boots, 1 - alpha / 2)
+    lower = np.quantile(boots, alpha / 2)
+    centre = stat(data)
 
-    est = stat(samples)
-    return (stat(data), est + (est - lower), est + (est - upper))
+    return centre, 2*centre - upper, 2*centre - lower
 
 
-def acf(samples, length=20):
-    """Compute the autocorrelation function for a list of samples
-    Courtesy of https://stackoverflow.com/a/7981132
+def bin_bootstrap_2d(data, stat, dim, nboot, level):
 
-    Args:
-        samples (ndarray): data on which to compute acf
-        length (int, optional): maximum distance at which acf will be computed. Defaults to 20.
+    centres = np.zeros(data.shape[dim])
+    lowers = np.zeros(data.shape[dim])
+    uppers = np.zeros(data.shape[dim])
 
-    Returns:
-        ndarray: 1D array of 'floats' of size 'length'
-    """
+    for i in range(data.shape[dim]):
+        c, l, u = bin_bootstrap(data.take(i, axis=dim), stat, nboot, level)
+        centres[i] = c
+        lowers[i] = l
+        uppers[i] = u
 
-    return np.array([1] + [np.corrcoef(samples[:-i], samples[i:])[0, 1] for i in range(1, length)])
+    return centres, lowers, uppers
