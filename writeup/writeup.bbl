@@ -185,6 +185,63 @@
     \field{year}{2022}
   \endentry
 
+  \entry{Giordano_2022}{article}{}
+    \name{author}{5}{}{%
+      {{hash=GM}{%
+         family={Giordano},
+         familyi={G\bibinitperiod},
+         given={Matteo},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=KK}{%
+         family={Kapás},
+         familyi={K\bibinitperiod},
+         given={Kornél},
+         giveni={K\bibinitperiod},
+      }}%
+      {{hash=KSD}{%
+         family={Katz},
+         familyi={K\bibinitperiod},
+         given={Sándor\bibnamedelima D.},
+         giveni={S\bibinitperiod\bibinitdelim D\bibinitperiod},
+      }}%
+      {{hash=PA}{%
+         family={Pásztor},
+         familyi={P\bibinitperiod},
+         given={Attila},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=TZ}{%
+         family={Tulipánt},
+         familyi={T\bibinitperiod},
+         given={Zoltán},
+         giveni={Z\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {American Physical Society (APS)}%
+    }
+    \strng{namehash}{GM+1}
+    \strng{fullhash}{GMKKKSDPATZ1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{G}
+    \field{sortinithash}{G}
+    \verb{doi}
+    \verb 10.1103/physrevd.106.054512
+    \endverb
+    \field{issn}{2470-0029}
+    \field{number}{5}
+    \field{title}{Exponential reduction of the sign problem at finite density in the 2+1D XY model via contour deformations}
+    \verb{url}
+    \verb http://dx.doi.org/10.1103/PhysRevD.106.054512
+    \endverb
+    \field{volume}{106}
+    \field{journaltitle}{Physical Review D}
+    \field{month}{09}
+    \field{year}{2022}
+  \endentry
+
   \entry{hanada2018markovchainmontecarlo}{misc}{}
     \name{author}{1}{}{%
       {{hash=HM}{%
@@ -210,69 +267,6 @@
     \field{eprinttype}{arXiv}
     \field{eprintclass}{hep-th}
     \field{year}{2018}
-  \endentry
-
-  \entry{10.1007/978-3-030-43465-6_11}{inproceedings}{}
-    \name{author}{4}{}{%
-      {{hash=HT}{%
-         family={Hartung},
-         familyi={H\bibinitperiod},
-         given={Tobias},
-         giveni={T\bibinitperiod},
-      }}%
-      {{hash=JK}{%
-         family={Jansen},
-         familyi={J\bibinitperiod},
-         given={Karl},
-         giveni={K\bibinitperiod},
-      }}%
-      {{hash=LH}{%
-         family={Le{\"o}vey},
-         familyi={L\bibinitperiod},
-         given={Hernan},
-         giveni={H\bibinitperiod},
-      }}%
-      {{hash=VJ}{%
-         family={Volmer},
-         familyi={V\bibinitperiod},
-         given={Julia},
-         giveni={J\bibinitperiod},
-      }}%
-    }
-    \name{editor}{2}{}{%
-      {{hash=TB}{%
-         family={Tuffin},
-         familyi={T\bibinitperiod},
-         given={Bruno},
-         giveni={B\bibinitperiod},
-      }}%
-      {{hash=LP}{%
-         family={L'Ecuyer},
-         familyi={L\bibinitperiod},
-         given={Pierre},
-         giveni={P\bibinitperiod},
-      }}%
-    }
-    \list{publisher}{1}{%
-      {Springer International Publishing}%
-    }
-    \strng{namehash}{HT+1}
-    \strng{fullhash}{HTJKLHVJ1}
-    \field{labelnamesource}{author}
-    \field{labeltitlesource}{title}
-    \field{sortinit}{H}
-    \field{sortinithash}{H}
-    \field{abstract}{%
-    In lattice field theory, the interactions of elementary particles can be computed via high-dimensional integrals. Markov-chain Monte Carlo (MCMC) methods based on importance sampling are normally efficient to solve most of these integrals. But these methods give large errors for oscillatory integrands, exhibiting the so-called sign problem. We developed new quadrature rules using the symmetry of the considered systems to avoid the sign problem in physical one-dimensional models for the resulting high-dimensional integrals. This article gives a short introduction to integrals used in lattice QCD where the interactions of gluon and quark elementary particles are investigated, explains the alternative integration methods we developed and shows results of applying them to models with one physical dimension. The new quadrature rules avoid the sign problem and can therefore be used to perform simulations at until now not reachable regions in parameter space, where the MCMC errors are too big for affordable sample sizes. However, it is still a challenge to develop these techniques further for applications with physical higher-dimensional systems.%
-    }
-    \field{booktitle}{Monte Carlo and Quasi-Monte Carlo Methods}
-    \field{isbn}{978-3-030-43465-6}
-    \field{pages}{231\bibrangedash 249}
-    \field{title}{Avoiding the Sign Problem in Lattice Field Theory}
-    \list{location}{1}{%
-      {Cham}%
-    }
-    \field{year}{2020}
   \endentry
 
   \entry{Hasenbusch_2005}{article}{}
@@ -406,6 +400,154 @@
     \field{volume}{17}
     \field{journaltitle}{The Annals of Statistics}
     \field{year}{1989}
+  \endentry
+
+  \entry{NEURIPS2019_9015}{incollection}{}
+    \name{author}{21}{}{%
+      {{hash=PA}{%
+         family={Paszke},
+         familyi={P\bibinitperiod},
+         given={Adam},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=GS}{%
+         family={Gross},
+         familyi={G\bibinitperiod},
+         given={Sam},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=MF}{%
+         family={Massa},
+         familyi={M\bibinitperiod},
+         given={Francisco},
+         giveni={F\bibinitperiod},
+      }}%
+      {{hash=LA}{%
+         family={Lerer},
+         familyi={L\bibinitperiod},
+         given={Adam},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=BJ}{%
+         family={Bradbury},
+         familyi={B\bibinitperiod},
+         given={James},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=CG}{%
+         family={Chanan},
+         familyi={C\bibinitperiod},
+         given={Gregory},
+         giveni={G\bibinitperiod},
+      }}%
+      {{hash=KT}{%
+         family={Killeen},
+         familyi={K\bibinitperiod},
+         given={Trevor},
+         giveni={T\bibinitperiod},
+      }}%
+      {{hash=LZ}{%
+         family={Lin},
+         familyi={L\bibinitperiod},
+         given={Zeming},
+         giveni={Z\bibinitperiod},
+      }}%
+      {{hash=GN}{%
+         family={Gimelshein},
+         familyi={G\bibinitperiod},
+         given={Natalia},
+         giveni={N\bibinitperiod},
+      }}%
+      {{hash=AL}{%
+         family={Antiga},
+         familyi={A\bibinitperiod},
+         given={Luca},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=DA}{%
+         family={Desmaison},
+         familyi={D\bibinitperiod},
+         given={Alban},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=KA}{%
+         family={Kopf},
+         familyi={K\bibinitperiod},
+         given={Andreas},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=YE}{%
+         family={Yang},
+         familyi={Y\bibinitperiod},
+         given={Edward},
+         giveni={E\bibinitperiod},
+      }}%
+      {{hash=DZ}{%
+         family={DeVito},
+         familyi={D\bibinitperiod},
+         given={Zachary},
+         giveni={Z\bibinitperiod},
+      }}%
+      {{hash=RM}{%
+         family={Raison},
+         familyi={R\bibinitperiod},
+         given={Martin},
+         giveni={M\bibinitperiod},
+      }}%
+      {{hash=TA}{%
+         family={Tejani},
+         familyi={T\bibinitperiod},
+         given={Alykhan},
+         giveni={A\bibinitperiod},
+      }}%
+      {{hash=CS}{%
+         family={Chilamkurthy},
+         familyi={C\bibinitperiod},
+         given={Sasank},
+         giveni={S\bibinitperiod},
+      }}%
+      {{hash=SB}{%
+         family={Steiner},
+         familyi={S\bibinitperiod},
+         given={Benoit},
+         giveni={B\bibinitperiod},
+      }}%
+      {{hash=FL}{%
+         family={Fang},
+         familyi={F\bibinitperiod},
+         given={Lu},
+         giveni={L\bibinitperiod},
+      }}%
+      {{hash=BJ}{%
+         family={Bai},
+         familyi={B\bibinitperiod},
+         given={Junjie},
+         giveni={J\bibinitperiod},
+      }}%
+      {{hash=CS}{%
+         family={Chintala},
+         familyi={C\bibinitperiod},
+         given={Soumith},
+         giveni={S\bibinitperiod},
+      }}%
+    }
+    \list{publisher}{1}{%
+      {Curran Associates, Inc.}%
+    }
+    \strng{namehash}{PA+1}
+    \strng{fullhash}{PAGSMFLABJCGKTLZGNALDAKAYEDZRMTACSSBFLBJCS1}
+    \field{labelnamesource}{author}
+    \field{labeltitlesource}{title}
+    \field{sortinit}{P}
+    \field{sortinithash}{P}
+    \field{booktitle}{Advances in Neural Information Processing Systems 32}
+    \field{pages}{8024\bibrangedash 8035}
+    \field{title}{PyTorch: An Imperative Style, High-Performance Deep Learning Library}
+    \verb{url}
+    \verb http://papers.neurips.cc/paper/9015-pytorch-an-imperative-style-high-
+    \verb performance-deep-learning-library.pdf
+    \endverb
+    \field{year}{2019}
   \endentry
 
   \entry{perez2017filmvisualreasoninggeneral}{misc}{}

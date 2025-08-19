@@ -127,7 +127,7 @@ the use of countour deformations whereby the path integral of the system is carr
 make up a small subset of possible contour deformations in which only an imaginary offset is added to the single real parameter at each lattice site.
 
 We first explore the feasibility of such a procedure using a 1-layer convolutional neural network to produce a the vertical shifts for each site at fixed temperature,
-then move on to the use of a much larger U-Net based architecture to learn the structure of the optimal vertical shift field across a range of temperatures.
+then move on to the use of a much larger U-Net based architecture to learn generally how to produce an optimal shift field given an arbitrary temperature.
 
 We find that substantial improvement can be attained through the use of the U-Net architecture, and study the shape of the shift field as temperature and
 distance are varied, as well as produce new plots of the correlation function to illustrate the improvement in estimation of the correlation length.
@@ -153,8 +153,7 @@ This model defines the universality class for thin film superfluids (in analogy 
 and for this reason is of great practical and theoretical significance.
 
 As the lattice size grows large, explicitly computing the path integral for the theory, which would integrating over all possible directions of all spins on the lattice,
-quickly becomes intractable, so we turn to Monte Carlo sampling to draw from the distribution governing field configurations by randomly stepping around the domain
-of integration in a way that prefers spending more time in areas with large contributions to the integral. Given a set of samples, we can compute the alignment of two
+quickly becomes intractable, so we turn to Markov Chain Monte Carlo to do importance sampling from the distribution governing field configurations. Given a set of samples, we can compute the alignment of two
 particular spins in each sample and average over all samples to arrive at the correlator.
 
 Kosterlitz and Thouless \cite{KT} showed in 1973 that, despite the Mermin-Wagner theorem forbidding a phase transition due to spontaneous symmetry breaking
@@ -173,7 +172,7 @@ to determine optimal vertical shift deformations when trained to minimize varian
 In this work we seek to apply these developments to evaluation of the two-point correlator in the XY model. We first investigate the use of a simple one-layer
 convolutional network to evaluate the correlator at fixed temperature and separation, and then move on to a far more expressive U-Net \cite{ronneberger2015unetconvolutionalnetworksbiomedical}
 based architecture which additionally implements feature wise linear modulation \cite{perez2017filmvisualreasoninggeneral} to incorporate separation and temperature dependence. In both cases,
-a fully-convolutional network (FCN) is applied to an input image inspired \textit{a-priori} by the geometry of the correlator to generate a field of vertical shifts which are applied to
+a fully-convolutional network (FCN) is applied to an input image, independent of the field variables themselves, inspired \textit{a-priori} by the geometry of the correlator to generate a field of vertical shifts which are applied to
 the real-valued angle at each lattice site.
 
 \section{Background}
@@ -187,9 +186,9 @@ lattice field theory required for simulating the theory and extracting estimates
 
 The Hamiltonian for the XY model on a square lattice $\Lambda$ with spacing $a$ is as follows:
 
-\begin{equation}
+\begin{equation*}
 	H[\theta] = -\sum_{\mathbf{r}r\in\Lambda}\sum_{\mu=1,2}\cos(\theta(\mathbf{r}+a\hat{\pmb{\mu}})-\theta(\mathbf{\mathbf{r}}))
-\end{equation}
+\end{equation*}
 
 Where we write the two-component vector describing the position of an angle in the lattice as $\mathbf{r}$ and $\hat{\mathbf{\mu}}$ is the unit vector
 pointing in the $\mu$-th direction. The cosine simply describes a dot product between two-component unit vectors, which are fully described by one
@@ -211,15 +210,15 @@ In order to make progress with studying the model analytically, it is necessary 
 \cite{drouintouchette2022kosterlitzthoulessphasetransitionintroduction}.
 We start by considering the regime where the field $\theta$ is slowly varying, so we may expand the cosine to second order:
 
-\begin{equation}
+\begin{equation*}
 	\cos(\theta(\mathbf{r}+a\hat{\pmb{\mu}})-\theta(\mathbf{\mathbf{r}})) \approx 1 - \frac{1}{2}\left( \theta(\mathbf{r}+a\hat{\pmb{\mu}})-\theta(\mathbf{\mathbf{r}}) \right)^2
-\end{equation}
+\end{equation*}
 
 as well as expand the field around $\mathbf{r}$
 
-\begin{equation}
+\begin{equation*}
 	\theta(\mathbf{r}+a\hat{\pmb{\mu}}) \approx \theta(\mathbf{r}) + a\partial_{\mu}\theta(\mathbf{r})
-\end{equation}
+\end{equation*}
 
 Then, bringing out a factor of $a^2$ and carrying out the sum over $\mu$ allows us to take $a \rightarrow 0$ and change the sum over sites for a continuous integral:
 
@@ -236,55 +235,58 @@ The continuum form of the Hamiltonian will again be relevant later as we discuss
 
 The form of the Hamiltonian shown in eq. \ref{eq:cont_ham} can be easily fourier transformed, and the lattice spacing reintroduced:
 
-\begin{equation}
+\begin{equation*}
 	\int \frac{\mathrm{d}^2 k}{(2\pi)^2} \, \frac{1}{2} k^2 \left|\theta(\mathbf{k})\right|^2 \rightarrow \frac{a^2}{L^2} \sum_{\mathbf{k}} k^2 \left| \theta(\mathbf{k}) \right|
-\end{equation}
+\end{equation*}
 
 where, for a real-valued field we uses $\theta^*(\mathbf{k})=\theta(-\mathbf{k})$ and the sum runs over the first Brillouin zone.
 
 Shown in detail in \cite{drouintouchette2022kosterlitzthoulessphasetransitionintroduction}, the field can be decomposed into its real and imaginary parts, so that the
 spin-spin correlation
 
-\begin{equation}
+\begin{equation*}
 	C(\mathbf{r}) = \langle e^{i\theta(\mathbf{r}) - i\theta(\mathbf{0})} \rangle = \frac{1}{\mathcal{Z}} \int \mathcal{D}\theta \, e^{i\theta(\mathbf{r}) - i\theta(\mathbf{0})} e^{-\beta H[\theta]}
-\end{equation}
+\end{equation*}
 
 may be evaluated using the standard techniques of gaussian integration.
 
 The correlation function depends only on the magnitude of the separation and takes a power-law form proportional to
 
-\begin{equation}
+\begin{equation*}
 	g(r) \propto \left(\frac{\pi r}{a}\right)^{-\eta(\beta)}
-\end{equation}
+\end{equation*}
 
 illustrating that, in the low temperature regime the system exhibits an infinite correlation length $\xi$, as $\xi$ is defined through (in two dimensions)
 
-\begin{equation}
+\begin{equation*}
 	g(r) \propto \frac{e^{-r/\xi(\beta)}}{r^{\eta}}
-\end{equation}
+\end{equation*}
 
 in the language of statistical field theory, the XY model has a quasi-long-range order at low temperature, and therefore must undergo a phase transition
 at finite temperature before reaching the disordered phase. This is the Kosterlitz-Thouless Transition. 
 
-In brief, the particular observable which is thought to jump discontinuously at the KT transition is the helicity modulues $\Upsilon$ which measures the 
+\subsubsection{Observables}
+
+The particular observable which is thought to jump discontinuously at the KT transition is the helicity modulues $\Upsilon$ which measures the 
 response of the lattice (with periodic boundary conditions) to a twisting of the spins along the boundary by an angle $\alpha$. On the lattice, the so-called
 Nelson-Kosterlitz jump is smoothed out by finite-size effects, however the drop becomes increasingly sharp as $L$ is increased.
 
 $\Upsilon$ is formally defined through
 
-\begin{equation} \label{eq:helicity}
-	\Upsilon = -\frac{\partial^2\mathcal{Z}(\alpha)}{\partial\alpha^2}\Big|_{\alpha=0} = \left\langle \sum_{\mathbf{r}\in\Lambda} \cos(\theta(\mathbf{r})-\theta(\mathbf{r}-a\hat{\mathbf{x}}))
-	+\left( \sum_{\mathbf{r}\in\Lambda} \sin(\theta(\mathbf{r})-\theta(\mathbf{r}-a\hat{\mathbf{x}})) \right)^2 \right\rangle
-\end{equation}
+\begin{multline} \label{eq:helicity}
+	\Upsilon = -\frac{\partial^2\mathcal{Z}(\alpha)}{\partial\alpha^2}\Big|_{\alpha=0} = \\ \frac{1}{L^2} \left\langle \sum_{\mathbf{r}\in\Lambda} \cos(\theta(\mathbf{r})-\theta(\mathbf{r}-a\hat{\mathbf{x}}))
+	\right\rangle - \frac{\beta}{L^2} \left\langle \left( \sum_{\mathbf{r}\in\Lambda} \sin(\theta(\mathbf{r})-\theta(\mathbf{r}-a\hat{\mathbf{x}})) \right)^2 \right\rangle
+\end{multline}
 
 The choice of the $x$ direction here is arbitrary, and if so desired, $\Upsilon$ can be recomputed exchanging $x$ for $y$ to average the two results
 and drive noise down further.
 
 Other quantities of diagnostic interest are the magnetization per site, obtained from averaging together all spin vectors on the lattice:
 
-\begin{equation}
-	\left\langle \frac{\mathbf{M}}{L^2} \right\rangle = \left\langle \left( \sum_{\mathbf{r}\in\Lambda} \cos(\theta(\mathbf{r})) ,\,  \sum_{\mathbf{r}\in\Lambda} \sin(\theta(\mathbf{r})) \right) \right\rangle
-\end{equation}
+\begin{equation*}
+	\left\langle \frac{\mathbf{M}}{L^2} \right\rangle = \left\langle \frac{1}{L^2} \left( \sum_{\mathbf{r}\in\Lambda} \cos(\theta(\mathbf{r})) ,\,  \sum_{\mathbf{r}\in\Lambda} \sin(\theta(\mathbf{r})) \right) \right\rangle =
+	\left\langle \frac{1}{L^2} \left( \mathrm{Re}\left[\sum_{\mathbf{r}\in\Lambda}e^{i\theta(\mathbf{r})} \right],\, \mathrm{Im}\left[ \sum_{\mathbf{r}\in\Lambda} e^{i\theta(\mathbf{r})}\right] \right) \right\rangle
+\end{equation*}
 
 and the related magnetic suscptibility (per spin) obtained by analyzing the response of the magnetization to the addition of an external field $\mathbf{h}=(h,\,0)$ which contributes 
 a term $-h \sum_{\mathbf{r}\in \Lambda}\cos(\theta(\mathbf{r}))$ to the Hamiltonian:
@@ -324,15 +326,17 @@ distributed according to the Boltzmann measure as $t\rightarrow\infty$. The upda
 
 As pointed out in \cite{hanada2018markovchainmontecarlo}, the last of these conditions is perhaps the most nebulous. In brief, if the chain converges to some
 distribution asymptotically, it must then be invariant under translation in time, or \textit{stationary}. Enforcing this property gives rise to detailed balance.
+Detailed balance is a sufficient but not necessary condition for an MCMC algorith. Some popular update strategies, like the Swendsen-Wang algorithm, do not
+satisfy detailed balance.
 
 In practice we must also account for \textit{thermalization time} $t_0$, that is, if the initial field configuration is very far from the energetic minimum, some number of steps
 will be required before the field is consistently fluctuating about equilibrium.
 
 Once a set of field configurations has been gathered, estimating an observable $\mathcal{O}$ that is a function of the field is as simple as computing
 
-\begin{equation}
+\begin{equation*}
 	\langle \mathcal{O} \rangle \approx \frac{1}{t-t_0} \sum_{i=t_0}^{t} \mathcal{O}[\theta^{(i)}]
-\end{equation}
+\end{equation*}
 
 This estimate will become exact as $t$ runs to infinity.
 
@@ -340,10 +344,10 @@ We may additionally be interested in estimating the noise on our observable, in 
 are required. There is also the issue of \textit{autocorrelation time}. We first define the the \textit{autocorrelation}, which measures how correlated 
 the samples in a sequence are with one another, as:
 
-\begin{equation}
+\begin{equation*}
 	\rho(t) = \frac{\left\langle \mathcal{O}[\theta^{(i)}]\cdot\mathcal{O}[\theta^{(i+t)}] \right\rangle}{\sqrt{\mathrm{Var}[\mathcal{O}[\theta^{(i)}]]\cdot\mathrm{Var}[\mathcal{O}[\theta^{(i+t)}]]}}
 	\in [0,\,1]
-\end{equation}
+\end{equation*}
 
 For a \textit{stationary} series, which sequences of MCMC samples are, this should depend only on $t$, not on $i$. Without delving too deeply into the rich field of time series analysis which involves the study of sequences of random variables, 
 we will simply state that the autocorrelation is expected to decay exponentially with some characteristic time.
@@ -399,11 +403,29 @@ in one dimension.
 
 \begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\textwidth]{figures/sign.png}
-	\caption[Sign Problem Illustration]{An illustration of a numerical sign problem (courtesy of \cite{10.1007/978-3-030-43465-6_11}) for the case of an observable
-	which oscillates on the domain of integration. Small deviations in sampling may result in drastically different estimates
-	of the observable mean.}
+	\includegraphics[width=0.6\textwidth]{figures/example_hist.png}
+	\caption[Sign Problem Illustration]{An illustration of a numerical sign problem in one of our simulations of the two-point correlator at temperature $T=1$
+	and maximum separation on a $128\times 128$ lattice with periodic boundary conditions, $\mathbf{r}=(64,64)$. Notice that the points are
+	distributed evenly around the unit circle in the complex plane, meaning that the average will be a result of many cancelling signs. This leads
+	to very noisy estimates of the average that are highly sensitive to small changes in the sample distribution.}
 	\label{fig:sign_problem}
+\end{figure}
+
+\subsubsection{Observable Results}
+
+We also present the temperature dependence of the observables \ref{eq:susc}, \ref{eq:helicity}, and \ref{eq:heat} using $18,000$ thermalized samples at each temperature plotted. We 
+assess the autocorrelation time of each observable and apply block bootstrapping \cite{10.1214/aos/1176347265}
+to compute 95\% confidence intervals on each point. The implementation of our MCMC sampler and data post-processing is discussed at length in section 4.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.55\textwidth]{figures/obs/susc.png}
+	\includegraphics[width=0.55\textwidth]{figures/obs/helicity.png}
+	\includegraphics[width=0.55\textwidth]{figures/obs/heat_capacity.png}
+	\caption[Diagnostic observables]{Susceptibility, helicity modulus, and specific heat as a function of temperature with block bootstrapped 95\% confidence intervals.
+	We see the characteristic drop in helicity modulus to zero, as well as the peaking of the susceptibility characteristic of the phase transition. The peak
+	in the specific heat is not due to the phase transition but rather another known feature of the model that confirms our sampling is working correctly.}
+	\label{fig:observables}
 \end{figure}
 
 \section{Methodology}
@@ -421,7 +443,7 @@ for some arbitrary real-valued field(s) $\phi$ and an observable $\mathcal{O}$ t
 	\langle \mathcal{O} \rangle = \frac{1}{\mathcal{Z}} \int \mathcal{D}\phi \, \mathcal{O}[\phi] \, e^{-\beta H[\phi]}
 \end{equation}
 
-And introduce a holomorphic change of variables 
+And introduce a change of variables 
 
 \begin{equation*}
 	\phi \rightarrow \tilde{\phi}(\phi)
@@ -450,11 +472,12 @@ We then reintroduce the undeformed Hamiltonian and push the Jacobian into the ex
 
 Where we have defined the deformed observable $\mathcal{Q}$ through
 
-\begin{equation}
+\begin{equation*}
 	 \mathcal{Q}(\tilde{\phi}(\phi)) = \mathcal{O}[\tilde{\phi}(\phi)] \, e^{-\beta \left( H[\tilde{\phi}(\phi)] - H[\phi] \right) + \log J[\phi]}
-\end{equation}
+\end{equation*}
 
-So long as the observable $\mathcal{O}$ has an analytic continuation to the manifold $\mathcal{M}$, Cauchy's integral theorem guarantees 
+So long as the observable $\mathcal{O}$ has an analytic continuation to the manifold $\mathcal{M}$, Cauchy's integral theorem guarantees (
+as long as the integrand is holomorphic over the entire domain complexified space)
 $\langle \mathcal{Q} \rangle = \langle \mathcal{O} \rangle$. The key, of course, is that the variance of the deformed observable need not be the
 same. In particular, we can see by writing
 
@@ -505,18 +528,22 @@ for the shift function. In this work we specialize even further to the case wher
 at each site, so the second term in the determinant of \ref{eq:Jac} drops out and only the identity is left. 
 
 For the remainder of our discussion in this section
-we trade $\phi$ back for $\theta$, and represent the position-dependent vertical shifts as $\Delta$. The deformed Hamiltonian now reads 
+we trade $\phi$ back for $\theta$, and represent the position-dependent vertical shifts as $\psi$. The deformed Hamiltonian now reads 
 (using $\langle ij \rangle$ to denote angles $i$ and $j$ are nearest neighbors):
 
 \begin{equation} \label{eq:deformed_ham}
-	H[\phi + i \Delta] = -\sum_{\langle ij \rangle} \left(\cos(\theta_i-\theta_j)\cosh(\Delta_i-\Delta_j) -
-	i \sin(\theta_i-\theta_j)\sinh(\Delta_i-\Delta_j) \right)
+	H[\phi + i \psi] = -\sum_{\langle ij \rangle} \left(\cos(\theta_i-\theta_j)\cosh(\psi_i-\psi_j) -
+	i \sin(\theta_i-\theta_j)\sinh(\psi_i-\psi_j) \right)
 \end{equation}
 
 The deformed Hamiltonian picks up a phase factor that can be tuned to interfere destructively with the phase of the observable of interest. 
-Additionally, we see that terms like $\cosh(\Delta_i - \Delta_j)$ which, when entering the exponential, will contribute by reweighting samples. 
+Additionally, we see that terms like $\cosh(\psi_i - \psi_j)$ which, when entering the exponential, will contribute by reweighting samples. 
 Evidently the shift field cannot vary too quickly, as $\cosh$ blows up for large gradients in the shifts. Large gradients will then result in samples being
 reweighted by the exponent of a very large negative value, in which case information is lost and the variance will suffer.
+
+We also remind the reader that the derivation in this section in no way relies on the change of coordinates chosen. No matter what manifold
+we choose to evaluate the integrand over, so long as the integrand is holomorphic over that manifold, we are guaranteed the same average value
+of the observable.
 
 \subsubsection{Deforming the Correlator}
 
@@ -525,50 +552,54 @@ expanding the (hyperbolic) trigonometric functions for the case of small variati
 have a second-order term, while $\cos$ and $\cosh$ do, making the analytics particularly straightforward. Keeping only terms quadratic
 in the shifts and in the field:
 
-\begin{equation}
+\begin{equation*}
 	\begin{split}
-		cos(\theta_i-\theta_j)\cosh(\Delta_i-\Delta_j) \rightarrow 1 - \frac{1}{2}(\partial_\mu \theta(\mathbf{r}))^2 + \frac{1}{2}(\partial_\mu \Delta(\mathbf{r}))^2 \\
-		i \sin(\theta_i-\theta_j)\sinh(\Delta_i-\Delta_j) \rightarrow i(\partial_\mu \theta(\mathbf{r})) \cdot (\partial_\mu \Delta(\mathbf{r}))
+		cos(\theta_i-\theta_j)\cosh(\psi_i-\psi_j) \rightarrow 1 - \frac{1}{2}(\partial_\mu \theta(\mathbf{r}))^2 + \frac{1}{2}(\partial_\mu \psi(\mathbf{r}))^2 \\
+		i \sin(\theta_i-\theta_j)\sinh(\psi_i-\psi_j) \rightarrow i(\partial_\mu \theta(\mathbf{r})) \cdot (\partial_\mu \psi(\mathbf{r}))
 	\end{split}
-\end{equation}
+\end{equation*}
 
 Again carrying out the sum over $\mu$ and changing the sum for an integral we obtain the continuum deformed Hamiltonian:
 
-\begin{equation}
-	H[\phi + i\Delta] = \int \mathrm{d}^2r \left(\frac{1}{2}(\nabla \theta(\mathbf{r}))^2 - \frac{1}{2}(\nabla \Delta(\mathbf{r}))^2 + i \nabla\theta(\mathbf{r}) \cdot \nabla\Delta(\mathbf{r}) \right)
-\end{equation}
+\begin{equation*}
+	H[\phi + i\psi] = \int \mathrm{d}^2r \left(\frac{1}{2}(\nabla \theta(\mathbf{r}))^2 - \frac{1}{2}(\nabla \psi(\mathbf{r}))^2 + i \nabla\theta(\mathbf{r}) \cdot \nabla\psi(\mathbf{r}) \right)
+\end{equation*}
 
 It is clear that the phase contributed by the deformed Hamiltonian is 
 
 \begin{equation} \label{eq:ham_phase}
-	{-\beta\int\mathrm{d}^2r \, \nabla\theta(\mathbf{r})\cdot\nabla\Delta(\mathbf{r})}
+	{-\beta\int\mathrm{d}^2r \, \nabla\theta(\mathbf{r})\cdot\nabla\psi(\mathbf{r})}
 \end{equation}
 
 We now require \ref{eq:ham_phase} to interfere with the phase of the two-point correlator of the deformed field, which is 
 the exponential of the term
 
-\begin{equation}
-	i(\theta(\mathbf{r}) - \theta(\mathbf{0})) -(\Delta(\mathbf{r}) - \Delta(\mathbf{0}))
-\end{equation}
+\begin{equation*}
+	i(\theta(\mathbf{r}) - \theta(\mathbf{0})) -(\psi(\mathbf{r}) - \psi(\mathbf{0}))
+\end{equation*}
 
 So the overall phase of the deformed correlator can be rewritten as (using $\mathbf{x}$ as the integration variable to avoid ambiguity)
 
-\begin{equation}
-	\int \mathrm{d}^2x \, \left((\delta(\mathbf{x} - \mathbf{r}) - \delta(\mathbf{x}))\theta(\mathbf{x})-\beta \, \nabla\theta(\mathbf{x})\cdot\nabla\Delta(\mathbf{x})\right)
-\end{equation}
+\begin{equation*}
+	\int \mathrm{d}^2x \, \left((\delta(\mathbf{x} - \mathbf{r}) - \delta(\mathbf{x}))\theta(\mathbf{x})-\beta \, \nabla\theta(\mathbf{x})\cdot\nabla\psi(\mathbf{x})\right)
+\end{equation*}
 
 In the thermodynamic limit where the boundary lies at infinity, we can integrate the second term by parts at the cost of a sign. Then, setting
 the phase to zero produces a Poisson equation with a positive source at $\mathbf{0}$ and a negative source at $\mathbf{r}$. The "charge" of each 
 source is scaled by $T=\frac{1}{\beta}$:
 
 \begin{equation} \label{eq:Poisson}
-	\nabla^2 \Delta(\mathbf{x}) = -T \left( \delta(\mathbf{x} - \mathbf{r}) - \delta(\mathbf{x}) \right)
+	\nabla^2 \psi(\mathbf{x}) = -T \left( \delta(\mathbf{x} - \mathbf{r}) - \delta(\mathbf{x}) \right)
 \end{equation}
 
 This is a strikingly simple result, however we have only considered the behavior of the deformed Hamiltonian to first order, and when gradients
 of the field become large (i.e. high temperature) the approximations that led to this form no longer hold. With this in mind, the main focus of 
 this work comes into view --- finding a numerical approach to determining the optimal shift field. In particular, we will investigate the use of 
-convolutional neural networks to learn the optimal form of $\Delta$.
+convolutional neural networks to learn the optimal form of $\psi$.
+
+There is past work \cite{Giordano_2022} on numerical optimization of vertical shift deformations for reducing the sign problem in the $1+1$ dimensional XY model with 
+nonzero chemical potential, which we refer the reader to as an example of past work with extended versions of the model we use in this project. To our knowledge
+however, no past work has applied neural networks for learning the form of the optimal vertical shift contour.
 
 \subsection{Machine Learning}
 
@@ -586,11 +617,19 @@ development history. We do not focus heavily on this aspect here, but will inclu
 the gradient of the loss with respect to each parameter is required, these gradients being computed through \textit{backpropagation} of gradients from the
 final layer of the network to the earliest layers.
 
+In the case of contour deformations, the loss is formulated in a way that quantifies the total variance of the deformed correlator, possibly across a 
+range of separations and temperatures. As the network weights are updated according to a form of gradient descent, it will learn to find contours that drive
+this total variance down as far as possible. 
+
 \subsubsection{Convolutional Networks}
 
 The vertical shift field itself being an $L \times L$ lattice is particularly conducive to the machinery of fully-convolutional (neural)
 networks (FCNs). A fully convolutional network works by accepting an image and performing a series of convolution and pooling operations
 to produce another image. 
+
+More simply, a convolutional network can be thought of as essentially applying a series of filters to an input image to produce an output image. As
+opposed to the filters we typically apply to photographs to blur or compress them, which simply involves taking combinations of the values of nearby
+pixels --- these filters are optimized to output an image that minimizes an objective function. 
 
 Discrete convolutions in 2 dimensions utilize a $K\times K$ grid of \textit{learnable} weights, or kernel, which is swept across an input grid, using the weights to take linear combinations of values 
 in the input grid as it passes over them and form a new image composed of those combinations. 
@@ -655,7 +694,17 @@ transformation $\mathbf{A}:\mathbb{R}^n\to \mathbb{R}^m$ to produce a vector wit
 before the processes repeats again some number of times. Each linear transformation is a matrix of learnable weights. 
 
 We can represent these networks with flowchart-like diagrams, where intermediate layes are represented by a set of nodes for each component and lines between nodes
-indicate a learnable weight. An example of such a diagram appears in \ref{fig:unet}.
+indicate a learnable weight. An example of such a diagram appears in \ref{fig:mlp}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.8\textwidth]{figures/MLP.drawio.png}
+	\caption[Multilayer Perceptron]{A diagram demonstrating the structure of a typical MLP. Here we show a 3-dimensional input going to
+	a 3-dimensional output with hidden layers in between. Each node of every layer receives a linear combination of all the nodes
+	from the previous layer, and then applies an activation function before passing it on to the next layer. The input and output
+	layers can be tuned to the specific task, and sometimes a transformation is applied to the output depending on the regression task.}
+	\label{fig:mlp}
+\end{figure}
 
 \subsubsection{The Input Mask}
 
@@ -665,7 +714,7 @@ the correlator to take the same form as the electric potential due to two point 
 
 While we expect that the more sophisticated neural network architecture should be able to account for higher-order effects that our approximation drops, 
 the general process for producing the shift field should be by "smearing out" opposite-sign point sources at the origin and second point. \ref{fig:mask_to_shift} 
-demonstrates this idea assuming the model were to learn simply to solve the Poisson equation of \ref{eq:Poisson}. 
+demonstrates this idea with a shift mask that behaves like an electric potential in two dimensions.
 
 \begin{figure}[h]
 	\centering
@@ -678,8 +727,8 @@ demonstrates this idea assuming the model were to learn simply to solve the Pois
 	\begin{minipage}{0.1\textwidth}
 		\centering
 		\begin{tikzpicture}[scale=1]
-			\draw[->, thick] (0,0.5) -- (1,0.5);
-			\node[above] at (0.5,0.5) {\small FCN};
+			\draw[->, thick] (-1,0.4) -- (1,0.4);
+			\node[above] at (0,0.4) {\footnotesize Network};
 		\end{tikzpicture}
 	\end{minipage}
 	\hspace{0.05\textwidth}
@@ -695,6 +744,11 @@ demonstrates this idea assuming the model were to learn simply to solve the Pois
 
 In our implementation, discussed in the next section, we will handle generation of the mask internally, so that the network is only required to
 take a coordinate $(x,\,y)$ on the lattice as the input. 
+
+To summarize, the network will seek to learn a map from this input mask, informed by the structure of the correlator, to a field of vertical
+shifts that will be used to deform the correlator. We construct an objective function that quantifies the variance in the deformed correlator
+obtained using the network's output, and numerically optimize the network's weights by minimizing this loss. It is also worth reiterating as well that no matter what contour is learned, we have a theoretical
+guarantee that the average will converge to the same value as in the undeformed case. Noisiness or bias (which we always want to avoid regardless) in the training process has no bearing on that result.
 
 \subsubsection{1-Layer Network and Loss Function}
 
@@ -854,7 +908,7 @@ Note that we are implementing pooling and transpose convolution with size 2 to h
 In order to train the model to generalize to arbitrary temperature and separation, we must improve on the loss function $\ref{eq:loss}$, in which $\mathcal{Q}$
 is explicitly a function of $\mathbf{r}$ and implicitly depends on temperature $T$. We write the generalized loss as
 
-\begin{equation}
+\begin{equation} \label{eq:unet_loss}
 	\mathcal{L} = \sum_{\mathbf{r}\in\Lambda}g(\mathbf{r})\int_{T_{\min}}^{T_{\max}}\mathrm{d}T\, f(T)\left\langle \left(\mathrm{Re}\,\mathcal{Q}(\mathbf{r})\right)^2 \right\rangle
 \end{equation}
 
@@ -901,7 +955,7 @@ and generate a new file for each temperature. Doubles are used so each angle is 
 \subsection{Observables and Machine Learning Routines}
 
 Using the NumPy package, the binary files written out by the MCMC sampler can be read into a Python program in the format of an $N_\mathrm{samples}\times 128 \times 128$ NumPy array.
-We then convert the configurations into PyTorch tensors with angles truncated to 32 bits. Tensors in PyTorch, like NumPy arrays, are computationally must faster to work with as operations on them
+We then convert the configurations into PyTorch \cite{NEURIPS2019_9015} tensors with angles truncated to 32 bits. Tensors in PyTorch, like NumPy arrays, are computationally must faster to work with as operations on them
 are heavily parallelized in either C++ or CUDA/HIP depending on the availability of a suitable GPU. PyTorch tensors are also equipped to store
 gradients with respect to their elements, so as a series of operations are carried out on them, PyTorch builds a compute graph so the gradients can be backpropagated for optimization.
 
@@ -915,28 +969,11 @@ Computations were done locally on a laptop equipped with an AMD Radeon RX 7700S,
 
 \section{Results}
 
-\subsection{Diagnostic Observables}
-
-We begin by inspecting the temperature dependence of the observables \ref{eq:susc}, \ref{eq:helicity}, and \ref{eq:heat}. Using the training samples we compute
-these observables at temperatures from $0.7$ to $1.1$ in increments of $0.01$. We assess the autocorrelation time of each observable and apply block bootstrapping \cite{10.1214/aos/1176347265}
-to compute 95\% confidence intervals on each point. We will also apply this method to the correlation function later.
-
-\begin{figure}
-	\centering
-	\includegraphics[width=0.55\textwidth]{figures/obs/susc.png}
-	\includegraphics[width=0.55\textwidth]{figures/obs/helicity.png}
-	\includegraphics[width=0.55\textwidth]{figures/obs/heat_capacity.png}
-	\caption[Diagnostic observables]{Susceptibility, helicity modulus, and specific heat as a function of temperature with block bootstrapped 95\% confidence intervals.
-	We see the characteristic drop in helicity modulus to zero, as well as the peaking of the susceptibility characteristic of the phase transition. The peak
-	in the specific heat is not due to the phase transition but rather another known feature of the model that confirms our sampling is working correctly.}
-	\label{fig:observables}
-\end{figure}
-
-\subsection{1-Layer Network Preliminary Results}
-
-In this section and the following section on the U-Net we compute the correlator on a validation set, which is a smaller dataset containing $4500$ configurations at temperatures
+In this section we compute the correlator on a \textit{validation} dataset, which is a smaller dataset containing $4500$ configurations at temperatures
 between $0.8$ and $1.0$ in increments of $1.01$. We use a smaller dataset mostly for time, as evaluating the shift field and deformed Hamiltonian are expensive
 operations. We also require a separate dataset than the data the networks have been trained on to demonstrate that improvements are not simply due to overfitting.
+
+\subsection{1-Layer Network Preliminary Results}
 
 The 1 layer network is investigated primarily to understand if a learned vertical shift field can provide meaningful reduction in variance as the theory predicts.
 As aforementioned, the 1 layer network is only trained on one separation and temperature at a time, which limits its use in computing the correlation function
@@ -998,14 +1035,14 @@ temperatures where the data collapses to a tight unimodal distribution around th
 We also investigate the autocorrelation between the undeformed and deformed samples at these temperatures. We might expect that because the deformed observable is
 now nonlocal and involves a sum over the whole lattice that autocorrelations will be stronger. Recall that the samples drawn are also not at successive timesteps, but
 rather at every 10th timestep --- meaning that for the deformed samples to be sufficiently decorrelated, the lattice must change fairly significantly every ten steps. We 
-plot the autocorrelation as a function of how many intervals of ten the samples are separated by in \ref{fig:acf}. It appears that across the temperatures included in 
+plot the autocorrelation as a function of how many 10-step intervals of ten the samples are separated by in \ref{fig:acf}. It appears that across the temperatures included in 
 the data there is no meaningful degradation introduced by deformation --- the autocorrelation curves before and after deforming decay over a similar timescale.
 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.495\textwidth]{figures/acf/undef.png}
 	\includegraphics[width=0.495\textwidth]{figures/acf/def.png}
-	\caption[Autocorrelations]{Autocorrelation functions for the undeformed and U-Net deformed observable at various temperatures across the validation data.}
+	\caption[Autocorrelations]{Autocorrelation functions for the undeformed and U-Net deformed observable at maximum separation and various temperatures across the validation data.}
 	\label{fig:acf}
 \end{figure}
 
@@ -1024,8 +1061,8 @@ correctly regularize a solution to Poisson's equation, and handle periodic bound
 	\centering
 	\includegraphics[width=0.8\textwidth]{figures/unet_max_shifts.png}
 	\caption[U-Net Max Shifts]{Shift fields produced by the U-Net over a range of temperatures for the maximum possible separation. We see again
-	that the U-Net preserves the source and sink as local minima/maxima, this time learning a shift field that spans the full lattice and behaves
-	visually Poisson-like.}
+	that the U-Net preserves the source and sink as local minima/maxima, this time learning a shift field that spans the full lattice and is
+	visually similar to an electrostatic potential.}
 	\label{fig:unet_max_shifts}
 \end{figure}
 
@@ -1045,8 +1082,49 @@ are moved relative to each other. Again the behavior is very reminiscent of the 
 In lattice field theory we are typically interested in \textit{momentum projected} correlation functions, where in the case of $1+1$ dimensional theories we would
 integrate out the spatial dependence to retain only the correlations between different points in time. In $2$ spatial dimensions (mappable onto the $1+1$ case by Wick rotation), 
 we integrate out either the $x$ or $y$ coordinate. This is referred to as momentum projection as integrating over one dimension is the same as setting the
-corresponding coordinate in momentum space to zero. 
+corresponding coordinate in momentum space to zero. Projecting correlations onto one coordinate also makes it much easier for us to compare the undeformed
+and deformed case. 
 
+When computing these projected correlations, we can also leverage the translational invariance of the correlator --- i.e. for some particular separation $(x, y)$ we can
+compute 
+
+\begin{equation*}
+	e^{i\theta(\mathbf{r}+\mathbf{r}_0)-i\theta(\mathbf{r}_0)}
+\end{equation*}
+
+or its deformed counterpart, and average over all or some choices of $\mathbf{r}_0$. This is also equivalently to taking all of the lattices in our configuration and translating them by $-\mathbf{r}_0$
+then calculating the correlator with respect to the origin as usual. We adopt the latter approach with the deformed correlator as it turns out to be simpler to implement given
+the existing structure of the code. 
+
+There is an even quicker and cleaner method to evaluate the translationally averaged projected correlator in the undeformed case. Breaking the notation $\mathbf{r}$ into $(x, y)$, we first write
+(considering only the real part of the correlator for reasons discussed previously):
+
+\begin{equation*}
+	C(x,y,x_0,y_0) = \mathrm{Re} \left\langle e^{i\theta(x,y) - i\theta(x_0,y_0)} \right\rangle
+\end{equation*}
+
+We then want to sum over $x_0,y_0$ to perform translational averaging, as well as over $y$ to perform momentum projection:
+
+\begin{equation} \label{eq:triple}
+	C(x) = \mathrm{Re} \left( \frac{1}{L^2} \sum_{x_0}\sum_{y_0}\sum_{y}C(x_0+x,y,x_0,y_0) \right) = \frac{1}{L^2} \mathrm{Re} \left\langle \sum_{x_0}\sum_{y_0}\sum_{y} e^{i\theta(x_0+x,y) - i\theta(x_0,y_0)} \right\rangle
+\end{equation}
+
+The sum is easily rewritten as a product of two sums:
+
+\begin{equation}
+	= \mathrm{Re} \left\langle \sum_{x_0} \left( \frac{1}{L}\sum_{y} e^{i\theta(x_0+x,y)} \right) \left( \frac{1}{L}\sum_{y_0} e^{-i\theta(x_0,y_0)} \right)  \right\rangle = \mathrm{Re} \left\langle \sum_{x_0} \Phi(x_0+x)\Phi^*(x_0) \right\rangle
+\end{equation}
+
+Where it is understood that the index will wrap around when it exceeds the lattice width. These variables $\Phi(x)=\frac{1}{L}\sum_{y}\exp(i\theta(x,y))$ are computationally very cheap to evaluate over an ensemble of lattices
+as opposed to evaluating the triple-nested sum of \ref{eq:triple} .
+We can theoretically achieve a polynomial reduction in the variance by doing this averaging, which cannot be done so simply in the case of a nonlocal deformed observable.
+
+With the deformed observable, we do not do full translational averaging, as the computational cost on the available hardware is too great given the scope of this project.
+Instead we randomly sample a few (specifically $4$ in our analysis) translations for each separation being evaluated. We then opt to, as aforementioned, translate the lattice backward by that amount to allow us to use the exact same shift field and 
+deformation procedure as when the reference point is the origin.
+
+The hope is that the variance reduction from deformation improves exponentially as separation increases, and at some point it "wins" for improving precision. We investigate
+this next.
 
 \section{Conclusion}
 
@@ -1059,6 +1137,7 @@ corresponding coordinate in momentum space to zero.
 \end{appendices}
 
 \newpage
+
 \printbibliography
 
 \end{document}

@@ -15,11 +15,11 @@ def bin_bootstrap(data, stat, nboot, level):
     """
 
     # Compute bin size from acf
-    autocorr = acf(data, nlags=50)[1:]
+    autocorr = acf(data, nlags=50, fft=True)[1:]
     n = autocorr.size
     taper = 1 - np.arange(1, n + 1) / (n + 1)
     int_act = 1 + 2 * np.sum(taper * autocorr)
-    blocksize = int(np.ceil(2 * int_act))
+    blocksize = min([int(np.ceil(2 * int_act)), len(data) // 2])
     # print(blocksize)
 
     blocks = [data[i:i+blocksize] for i in range(0, len(data) - blocksize + 1)]
@@ -36,7 +36,7 @@ def bin_bootstrap(data, stat, nboot, level):
     lower = np.quantile(boots, alpha / 2)
     centre = stat(data)
 
-    return centre, 2*centre - upper, 2*centre - lower
+    return centre, 2*centre - upper, 2*centre - lower, int_act
 
 
 def bin_bootstrap_2d(data, stat, dim, nboot, level):
@@ -44,11 +44,13 @@ def bin_bootstrap_2d(data, stat, dim, nboot, level):
     centres = np.zeros(data.shape[dim])
     lowers = np.zeros(data.shape[dim])
     uppers = np.zeros(data.shape[dim])
+    iacts = np.zeros(data.shape[dim])
 
     for i in range(data.shape[dim]):
-        c, l, u = bin_bootstrap(data.take(i, axis=dim), stat, nboot, level)
+        c, l, u, iact = bin_bootstrap(data.take(i, axis=dim), stat, nboot, level)
         centres[i] = c
         lowers[i] = l
         uppers[i] = u
+        iacts[i] = iact
 
-    return centres, lowers, uppers
+    return centres, lowers, uppers, iacts
