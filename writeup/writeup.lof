@@ -5,12 +5,18 @@
 \contentsline {figure}{\numberline {5}{\ignorespaces Transpose Convolution Demonstration}}{19}{figure.caption.12}%
 \contentsline {figure}{\numberline {6}{\ignorespaces Multilayer Perceptron}}{21}{figure.caption.13}%
 \contentsline {figure}{\numberline {7}{\ignorespaces Input Mask and Output}}{22}{figure.caption.14}%
-\contentsline {figure}{\numberline {8}{\ignorespaces SiLU Activation}}{24}{figure.caption.15}%
-\contentsline {figure}{\numberline {9}{\ignorespaces U-Net Block Diagram}}{25}{figure.caption.16}%
+\contentsline {figure}{\numberline {8}{\ignorespaces SiLU Activation}}{23}{figure.caption.15}%
+\contentsline {figure}{\numberline {9}{\ignorespaces U-Net Block Diagram}}{24}{figure.caption.16}%
 \contentsline {figure}{\numberline {10}{\ignorespaces Multilayer Perceptron for FiLM}}{25}{figure.caption.17}%
-\contentsline {figure}{\numberline {11}{\ignorespaces 1 Layer Network Histograms}}{29}{figure.caption.19}%
-\contentsline {figure}{\numberline {12}{\ignorespaces 1 layer shifts}}{30}{figure.caption.20}%
-\contentsline {figure}{\numberline {13}{\ignorespaces U-Net Histograms}}{31}{figure.caption.21}%
-\contentsline {figure}{\numberline {14}{\ignorespaces Autocorrelations}}{32}{figure.caption.22}%
+\contentsline {figure}{\numberline {11}{\ignorespaces 1 Layer Network Histograms}}{28}{figure.caption.19}%
+\contentsline {figure}{\numberline {12}{\ignorespaces 1 layer shifts}}{29}{figure.caption.20}%
+\contentsline {figure}{\numberline {13}{\ignorespaces U-Net Histograms}}{30}{figure.caption.21}%
+\contentsline {figure}{\numberline {14}{\ignorespaces Autocorrelations}}{31}{figure.caption.22}%
 \contentsline {figure}{\numberline {15}{\ignorespaces U-Net Max Shifts}}{32}{figure.caption.23}%
-\contentsline {figure}{\numberline {16}{\ignorespaces U-Net Alternate Shifts}}{33}{figure.caption.24}%
+\contentsline {figure}{\numberline {16}{\ignorespaces U-Net Alternate Shifts}}{32}{figure.caption.24}%
+\contentsline {figure}{\numberline {17}{\ignorespaces Variance vs. Temperature}}{33}{figure.caption.25}%
+\contentsline {figure}{\numberline {18}{\ignorespaces Theory Comparison}}{34}{figure.caption.26}%
+\contentsline {figure}{\numberline {19}{\ignorespaces Projected Correlators}}{36}{figure.caption.27}%
+\contentsline {figure}{\numberline {20}{\ignorespaces Projected Correlators (cont.)}}{37}{figure.caption.28}%
+\contentsline {figure}{\numberline {21}{\ignorespaces Projected Correlator Variances}}{38}{figure.caption.29}%
+\contentsline {figure}{\numberline {22}{\ignorespaces Projected Correlator Variance Ratio}}{39}{figure.caption.30}%

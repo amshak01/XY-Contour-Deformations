@@ -18,16 +18,14 @@
 \contentsline {subsubsection}{\numberline {a}Convolutional Networks}{18}{subsubsection.3.2.1}%
 \contentsline {subsubsection}{\numberline {b}Multilayer Perceptrons}{20}{subsubsection.3.2.2}%
 \contentsline {subsubsection}{\numberline {c}The Input Mask}{20}{subsubsection.3.2.3}%
-\contentsline {subsubsection}{\numberline {d}1-Layer Network and Loss Function}{22}{subsubsection.3.2.4}%
-\contentsline {subsubsection}{\numberline {e}The U-Net, FiLM, and Generalized Loss}{23}{subsubsection.3.2.5}%
-\contentsline {subsubsection}{\numberline {f}Training Procedure}{24}{subsubsection.3.2.6}%
+\contentsline {subsubsection}{\numberline {d}1-Layer Network and Loss Function}{21}{subsubsection.3.2.4}%
+\contentsline {subsubsection}{\numberline {e}The U-Net, FiLM, and Generalized Loss}{22}{subsubsection.3.2.5}%
+\contentsline {subsubsection}{\numberline {f}Training Procedure}{25}{subsubsection.3.2.6}%
 \contentsline {section}{\numberline {4}Implementation}{26}{section.4}%
-\contentsline {subsection}{\numberline {I}Data Generation and Storage}{27}{subsection.4.1}%
-\contentsline {subsection}{\numberline {II}Observables and Machine Learning Routines}{27}{subsection.4.2}%
+\contentsline {subsection}{\numberline {I}Data Generation and Storage}{26}{subsection.4.1}%
+\contentsline {subsection}{\numberline {II}Observables and Machine Learning Routines}{26}{subsection.4.2}%
 \contentsline {section}{\numberline {5}Results}{27}{section.5}%
-\contentsline {subsection}{\numberline {I}1-Layer Network Preliminary Results}{28}{subsection.5.1}%
-\contentsline {subsection}{\numberline {II}U-Net Results}{28}{subsection.5.2}%
-\contentsline {subsubsection}{\numberline {a}Projected Correlations}{30}{subsubsection.5.2.1}%
-\contentsline {section}{\numberline {6}Conclusion}{34}{section.6}%
-\contentsline {section}{\numberline {A}KT-Theory}{34}{appendix.1.A}%
-\contentsline {section}{\numberline {B}Statistics}{34}{appendix.1.B}%
+\contentsline {subsection}{\numberline {I}1-Layer Network Preliminary Results}{27}{subsection.5.1}%
+\contentsline {subsection}{\numberline {II}U-Net Results}{29}{subsection.5.2}%
+\contentsline {subsubsection}{\numberline {a}Projected Correlations}{33}{subsubsection.5.2.1}%
+\contentsline {section}{\numberline {6}Conclusion}{37}{section.6}%

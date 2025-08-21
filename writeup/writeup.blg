@@ -2,9 +2,9 @@ This is BibTeX, Version 0.99d (TeX Live 2023/Debian)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: writeup.aux
 The style file: biblatex.bst
-A level-1 auxiliary file: contour1_cartoon.aux
-A level-1 auxiliary file: conv2d.aux
-A level-1 auxiliary file: transpose_conv2d.aux
+A level-1 auxiliary file: figures/contour1_cartoon.aux
+A level-1 auxiliary file: figures/conv2d.aux
+A level-1 auxiliary file: figures/transpose_conv2d.aux
 Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
 Reallocated global_strs (elt_size=200001) to 20 items from 10.
 Reallocated glb_str_end (elt_size=4) to 20 items from 10.
@@ -27,7 +27,7 @@ Reallocated wiz_functions (elt_size=4) to 9000 items from 6000.
 Reallocated singl_function (elt_size=4) to 100 items from 50.
 You've used 15 entries,
             6399 wiz_defined-function locations,
-            1324 strings with 12851 characters,
+            1324 strings with 12875 characters,
 and the built_in function-call counts, 153673 in all, are:
 = -- 13281
 > -- 1829

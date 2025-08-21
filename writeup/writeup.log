@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.7.14)  19 AUG 2025 00:09
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdflatex 2025.7.14)  21 AUG 2025 15:10
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -1001,7 +1001,7 @@ Package: appendix 2020/02/08 v1.2c extra appendix facilities
 LaTeX Font Info:    Trying to load font information for T1+lmr on input line 55.
  (/usr/share/texmf/tex/latex/lm/t1lmr.fd
 File: t1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-) (./writeup.aux (./contour1_cartoon.aux) (./conv2d.aux) (./transpose_conv2d.aux))
+) (./writeup.aux (./figures/contour1_cartoon.aux) (./figures/conv2d.aux) (./figures/transpose_conv2d.aux))
 \openout1 = `writeup.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 55.
@@ -1116,7 +1116,7 @@ Package biblatex Warning: BibTeX reported the following issues
 )
 Package biblatex Info: Reference section=0 on input line 55.
 Package biblatex Info: Reference segment=0 on input line 55.
-<crest.pdf, id=139, 93.60963pt x 92.1871pt>
+<crest.pdf, id=131, 93.60963pt x 92.1871pt>
 File: crest.pdf Graphic file (type pdf)
 <use crest.pdf>
 Package pdftex.def Info: crest.pdf  used on input line 65.
@@ -1175,44 +1175,44 @@ LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 32
  (/usr/share/texmf/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [10{/usr/share/texmf/fonts/enc/dvips/lm/lm-ts1.enc}] [11]
-<figures/example_hist.png, id=319, 1517.67pt x 1618.045pt>
+<figures/example_hist.png, id=321, 1517.67pt x 1618.045pt>
 File: figures/example_hist.png Graphic file (type png)
 <use figures/example_hist.png>
 Package pdftex.def Info: figures/example_hist.png  used on input line 406.
 (pdftex.def)             Requested size: 271.7835pt x 289.75417pt.
  [12 <./figures/example_hist.png>]
-<figures/obs/susc.png, id=332, 424.9476pt x 312.2064pt>
+<figures/obs/susc.png, id=334, 424.9476pt x 312.2064pt>
 File: figures/obs/susc.png Graphic file (type png)
 <use figures/obs/susc.png>
 Package pdftex.def Info: figures/obs/susc.png  used on input line 422.
 (pdftex.def)             Requested size: 249.13371pt x 183.0378pt.
-<figures/obs/helicity.png, id=333, 412.6617pt x 312.2064pt>
+<figures/obs/helicity.png, id=335, 412.6617pt x 312.2064pt>
 File: figures/obs/helicity.png Graphic file (type png)
 <use figures/obs/helicity.png>
 Package pdftex.def Info: figures/obs/helicity.png  used on input line 423.
 (pdftex.def)             Requested size: 249.13371pt x 188.48767pt.
-<figures/obs/heat_capacity.png, id=334, 412.6617pt x 312.2064pt>
+<figures/obs/heat_capacity.png, id=336, 412.6617pt x 312.2064pt>
 File: figures/obs/heat_capacity.png Graphic file (type png)
 <use figures/obs/heat_capacity.png>
 Package pdftex.def Info: figures/obs/heat_capacity.png  used on input line 424.
 (pdftex.def)             Requested size: 249.13371pt x 188.48767pt.
  [13] [14 <./figures/obs/susc.png> <./figures/obs/helicity.png> <./figures/obs/heat_capacity.png>]
-\openout2 = `contour1_cartoon.aux'.
+\openout2 = `figures/contour1_cartoon.aux'.
 
- (./contour1_cartoon.tex) [15] [16
+ (./figures/contour1_cartoon.tex) [15] [16
 
 
 
 ] [17]
-\openout2 = `conv2d.aux'.
+\openout2 = `figures/conv2d.aux'.
 
- (./conv2d.tex)
+ (./figures/conv2d.tex)
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
-\openout2 = `transpose_conv2d.aux'.
+\openout2 = `figures/transpose_conv2d.aux'.
 
-(./transpose_conv2d.tex)
+(./figures/transpose_conv2d.tex)
 
 LaTeX Warning: `h' float specifier changed to `ht'.
 
@@ -1224,12 +1224,16 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 
 
 ]
-<figures/MLP.drawio.png, id=394, 853.1875pt x 613.29124pt>
+<figures/MLP.drawio.png, id=396, 853.1875pt x 613.29124pt>
 File: figures/MLP.drawio.png Graphic file (type png)
 <use figures/MLP.drawio.png>
 Package pdftex.def Info: figures/MLP.drawio.png  used on input line 701.
 (pdftex.def)             Requested size: 362.37569pt x 260.49092pt.
-<figures/unsmeared.png, id=397, 300.6432pt x 298.4751pt>
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<figures/unsmeared.png, id=399, 300.6432pt x 298.4751pt>
 File: figures/unsmeared.png Graphic file (type png)
 <use figures/unsmeared.png>
 Package pdftex.def Info: figures/unsmeared.png  used on input line 723.
@@ -1239,7 +1243,7 @@ Overfull \hbox (12.40593pt too wide) in paragraph at lines 732--733
  [][] 
  []
 
-<figures/smeared.png, id=398, 300.6432pt x 298.4751pt>
+<figures/smeared.png, id=400, 300.6432pt x 298.4751pt>
 File: figures/smeared.png Graphic file (type png)
 <use figures/smeared.png>
 Package pdftex.def Info: figures/smeared.png  used on input line 737.
@@ -1248,18 +1252,18 @@ Package pdftex.def Info: figures/smeared.png  used on input line 737.
 LaTeX Warning: `h' float specifier changed to `ht'.
 
 [20] [21 <./figures/MLP.drawio.png>] [22 <./figures/unsmeared.png> <./figures/smeared.png>]
-<figures/SiLU.png, id=420, 406.1574pt x 328.8285pt>
+<figures/SiLU.png, id=422, 406.1574pt x 328.8285pt>
 File: figures/SiLU.png Graphic file (type png)
 <use figures/SiLU.png>
 Package pdftex.def Info: figures/SiLU.png  used on input line 814.
 (pdftex.def)             Requested size: 271.7835pt x 220.03798pt.
- [23]
-<figures/UNet.png, id=428, 1012.78375pt x 512.91624pt>
+ [23 <./figures/SiLU.png>]
+<figures/UNet.png, id=431, 1012.78375pt x 512.91624pt>
 File: figures/UNet.png Graphic file (type png)
 <use figures/UNet.png>
 Package pdftex.def Info: figures/UNet.png  used on input line 839.
 (pdftex.def)             Requested size: 452.9679pt x 229.40141pt.
-<figures/FiLM.png, id=429, 553.06625pt x 442.65375pt>
+<figures/FiLM.png, id=432, 553.06625pt x 442.65375pt>
 File: figures/FiLM.png Graphic file (type png)
 <use figures/FiLM.png>
 Package pdftex.def Info: figures/FiLM.png  used on input line 852.
@@ -1270,91 +1274,182 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[24 <./figures/SiLU.png>] [25 <./figures/UNet.png> <./figures/FiLM.png>] [26] [27]
-<figures/1layer_hists/temp_0.png, id=465, 875.55106pt x 453.49425pt>
+[24 <./figures/UNet.png>] [25 <./figures/FiLM.png>] [26]
+<figures/1layer_hists/temp_0.png, id=463, 875.55106pt x 453.49425pt>
 File: figures/1layer_hists/temp_0.png Graphic file (type png)
 <use figures/1layer_hists/temp_0.png>
 Package pdftex.def Info: figures/1layer_hists/temp_0.png  used on input line 1001.
 (pdftex.def)             Requested size: 362.37569pt x 187.69145pt.
-<figures/1layer_hists/temp_1.png, id=466, 875.55106pt x 453.49425pt>
+<figures/1layer_hists/temp_1.png, id=464, 875.55106pt x 453.49425pt>
 File: figures/1layer_hists/temp_1.png Graphic file (type png)
 <use figures/1layer_hists/temp_1.png>
 Package pdftex.def Info: figures/1layer_hists/temp_1.png  used on input line 1001.
 (pdftex.def)             Requested size: 362.37569pt x 187.69145pt.
-<figures/1layer_hists/temp_2.png, id=467, 875.55106pt x 453.49425pt>
+<figures/1layer_hists/temp_2.png, id=465, 875.55106pt x 453.49425pt>
 File: figures/1layer_hists/temp_2.png Graphic file (type png)
 <use figures/1layer_hists/temp_2.png>
 Package pdftex.def Info: figures/1layer_hists/temp_2.png  used on input line 1001.
 (pdftex.def)             Requested size: 362.37569pt x 187.69145pt.
-<figures/1layershifts.png, id=468, 387.3672pt x 314.3745pt>
+<figures/1layershifts.png, id=466, 387.3672pt x 314.3745pt>
 File: figures/1layershifts.png Graphic file (type png)
 <use figures/1layershifts.png>
 Package pdftex.def Info: figures/1layershifts.png  used on input line 1011.
 (pdftex.def)             Requested size: 271.7835pt x 220.5787pt.
-<figures/unet_hists/temp_0.png, id=470, 875.55106pt x 453.49425pt>
+ [27] [28 <./figures/1layer_hists/temp_0.png> <./figures/1layer_hists/temp_1.png> <./figures/1layer_hists/temp_2.png>]
+<figures/unet_hists/temp_0.png, id=479, 875.55106pt x 453.49425pt>
 File: figures/unet_hists/temp_0.png Graphic file (type png)
 <use figures/unet_hists/temp_0.png>
 Package pdftex.def Info: figures/unet_hists/temp_0.png  used on input line 1028.
 (pdftex.def)             Requested size: 362.37569pt x 187.69145pt.
-<figures/unet_hists/temp_1.png, id=471, 875.55106pt x 453.49425pt>
+<figures/unet_hists/temp_1.png, id=480, 875.55106pt x 453.49425pt>
 File: figures/unet_hists/temp_1.png Graphic file (type png)
 <use figures/unet_hists/temp_1.png>
 Package pdftex.def Info: figures/unet_hists/temp_1.png  used on input line 1028.
 (pdftex.def)             Requested size: 362.37569pt x 187.69145pt.
-<figures/unet_hists/temp_2.png, id=472, 875.55106pt x 453.49425pt>
+<figures/unet_hists/temp_2.png, id=481, 875.55106pt x 453.49425pt>
 File: figures/unet_hists/temp_2.png Graphic file (type png)
 <use figures/unet_hists/temp_2.png>
 Package pdftex.def Info: figures/unet_hists/temp_2.png  used on input line 1028.
 (pdftex.def)             Requested size: 362.37569pt x 187.69145pt.
-<figures/acf/undef.png, id=474, 409.7709pt x 328.8285pt>
+<figures/acf/undef.png, id=483, 409.7709pt x 328.8285pt>
 File: figures/acf/undef.png Graphic file (type png)
 <use figures/acf/undef.png>
 Package pdftex.def Info: figures/acf/undef.png  used on input line 1043.
 (pdftex.def)             Requested size: 224.21689pt x 179.928pt.
-<figures/acf/def.png, id=475, 409.7709pt x 328.8285pt>
+<figures/acf/def.png, id=484, 409.7709pt x 328.8285pt>
 File: figures/acf/def.png Graphic file (type png)
 <use figures/acf/def.png>
 Package pdftex.def Info: figures/acf/def.png  used on input line 1044.
 (pdftex.def)             Requested size: 224.21689pt x 179.928pt.
- [28] [29 <./figures/1layer_hists/temp_0.png> <./figures/1layer_hists/temp_1.png> <./figures/1layer_hists/temp_2.png>]
-<figures/unet_max_shifts.png, id=488, 454.5783pt x 340.3917pt>
+ [29 <./figures/1layershifts.png>] [30 <./figures/unet_hists/temp_0.png> <./figures/unet_hists/temp_1.png> <./figures/unet_hists/temp_2.png>]
+<figures/unet_max_shifts.png, id=499, 454.5783pt x 340.3917pt>
 File: figures/unet_max_shifts.png Graphic file (type png)
 <use figures/unet_max_shifts.png>
 Package pdftex.def Info: figures/unet_max_shifts.png  used on input line 1062.
 (pdftex.def)             Requested size: 362.37569pt x 271.35803pt.
-<figures/unet_alt_shifts.png, id=490, 454.5783pt x 340.3917pt>
+<figures/unet_alt_shifts.png, id=501, 454.5783pt x 340.3917pt>
 File: figures/unet_alt_shifts.png Graphic file (type png)
 <use figures/unet_alt_shifts.png>
 Package pdftex.def Info: figures/unet_alt_shifts.png  used on input line 1074.
 (pdftex.def)             Requested size: 362.37569pt x 271.35803pt.
- [30 <./figures/1layershifts.png>] [31 <./figures/unet_hists/temp_0.png> <./figures/unet_hists/temp_1.png> <./figures/unet_hists/temp_2.png>] [32 <./figures/acf/undef.png> <./figures/acf/def.png> <./figures/unet_max_shifts.png>] [33 <./figures/unet_alt_shifts.png>] [34]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1141.
+<figures/variance_temp.png, id=502, 417.7206pt x 328.8285pt>
+File: figures/variance_temp.png Graphic file (type png)
+<use figures/variance_temp.png>
+Package pdftex.def Info: figures/variance_temp.png  used on input line 1093.
+(pdftex.def)             Requested size: 362.37569pt x 285.26064pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[31 <./figures/acf/undef.png> <./figures/acf/def.png>] [32 <./figures/unet_max_shifts.png> <./figures/unet_alt_shifts.png>]
+<figures/vs_theory.png, id=517, 417.7206pt x 330.2739pt>
+File: figures/vs_theory.png Graphic file (type png)
+<use figures/vs_theory.png>
+Package pdftex.def Info: figures/vs_theory.png  used on input line 1116.
+(pdftex.def)             Requested size: 362.37569pt x 286.5145pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[33 <./figures/variance_temp.png>] [34 <./figures/vs_theory.png>]
+<figures/deformed_vs_undeformed/fig_0.png, id=535, 860.013pt x 357.7365pt>
+File: figures/deformed_vs_undeformed/fig_0.png Graphic file (type png)
+<use figures/deformed_vs_undeformed/fig_0.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed/fig_0.png  used on input line 1188.
+(pdftex.def)             Requested size: 407.66833pt x 169.57724pt.
+<figures/deformed_vs_undeformed/fig_1.png, id=536, 860.013pt x 357.7365pt>
+File: figures/deformed_vs_undeformed/fig_1.png Graphic file (type png)
+<use figures/deformed_vs_undeformed/fig_1.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed/fig_1.png  used on input line 1188.
+(pdftex.def)             Requested size: 407.66833pt x 169.57724pt.
+<figures/deformed_vs_undeformed/fig_2.png, id=537, 860.013pt x 357.7365pt>
+File: figures/deformed_vs_undeformed/fig_2.png Graphic file (type png)
+<use figures/deformed_vs_undeformed/fig_2.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed/fig_2.png  used on input line 1188.
+(pdftex.def)             Requested size: 407.66833pt x 169.57724pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<figures/deformed_vs_undeformed/fig_3.png, id=538, 860.013pt x 357.7365pt>
+File: figures/deformed_vs_undeformed/fig_3.png Graphic file (type png)
+<use figures/deformed_vs_undeformed/fig_3.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed/fig_3.png  used on input line 1200.
+(pdftex.def)             Requested size: 407.66833pt x 169.57724pt.
+<figures/deformed_vs_undeformed/fig_4.png, id=539, 860.013pt x 357.7365pt>
+File: figures/deformed_vs_undeformed/fig_4.png Graphic file (type png)
+<use figures/deformed_vs_undeformed/fig_4.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed/fig_4.png  used on input line 1200.
+(pdftex.def)             Requested size: 407.66833pt x 169.57724pt.
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<figures/deformed_vs_undeformed_var/fig_0.png, id=544, 406.8801pt x 328.1058pt>
+File: figures/deformed_vs_undeformed_var/fig_0.png Graphic file (type png)
+<use figures/deformed_vs_undeformed_var/fig_0.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed_var/fig_0.png  used on input line 1213.
+(pdftex.def)             Requested size: 224.21689pt x 180.80418pt.
+<figures/deformed_vs_undeformed_var/fig_1.png, id=545, 406.8801pt x 328.1058pt>
+File: figures/deformed_vs_undeformed_var/fig_1.png Graphic file (type png)
+<use figures/deformed_vs_undeformed_var/fig_1.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed_var/fig_1.png  used on input line 1213.
+(pdftex.def)             Requested size: 224.21689pt x 180.80418pt.
+<figures/deformed_vs_undeformed_var/fig_2.png, id=546, 406.8801pt x 328.1058pt>
+File: figures/deformed_vs_undeformed_var/fig_2.png Graphic file (type png)
+<use figures/deformed_vs_undeformed_var/fig_2.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed_var/fig_2.png  used on input line 1213.
+(pdftex.def)             Requested size: 224.21689pt x 180.80418pt.
+<figures/deformed_vs_undeformed_var/fig_3.png, id=547, 406.8801pt x 328.1058pt>
+File: figures/deformed_vs_undeformed_var/fig_3.png Graphic file (type png)
+<use figures/deformed_vs_undeformed_var/fig_3.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed_var/fig_3.png  used on input line 1213.
+(pdftex.def)             Requested size: 224.21689pt x 180.80418pt.
+<figures/deformed_vs_undeformed_var/fig_4.png, id=548, 406.51875pt x 328.1058pt>
+File: figures/deformed_vs_undeformed_var/fig_4.png Graphic file (type png)
+<use figures/deformed_vs_undeformed_var/fig_4.png>
+Package pdftex.def Info: figures/deformed_vs_undeformed_var/fig_4.png  used on input line 1213.
+(pdftex.def)             Requested size: 224.21689pt x 180.9644pt.
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[35]
+<figures/variance_ratios.png, id=556, 417.7206pt x 328.8285pt>
+File: figures/variance_ratios.png Graphic file (type png)
+<use figures/variance_ratios.png>
+Package pdftex.def Info: figures/variance_ratios.png  used on input line 1226.
+(pdftex.def)             Requested size: 362.37569pt x 285.26064pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[36 <./figures/deformed_vs_undeformed/fig_0.png> <./figures/deformed_vs_undeformed/fig_1.png> <./figures/deformed_vs_undeformed/fig_2.png>] [37 <./figures/deformed_vs_undeformed/fig_3.png> <./figures/deformed_vs_undeformed/fig_4.png>] [38 <./figures/deformed_vs_undeformed_var/fig_0.png> <./figures/deformed_vs_undeformed_var/fig_1.png> <./figures/deformed_vs_undeformed_var/fig_2.png> <./figures/deformed_vs_undeformed_var/fig_3.png> <./figures/deformed_vs_undeformed_var/fig_4.png>] [39 <./figures/variance_ratios.png>]
+LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 1277.
  (/usr/share/texmf/tex/latex/lm/t1lmtt.fd
 File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-) [35] (./writeup.aux (./contour1_cartoon.aux) (./conv2d.aux) (./transpose_conv2d.aux))
+) [40] (./writeup.aux (./figures/contour1_cartoon.aux) (./figures/conv2d.aux) (./figures/transpose_conv2d.aux))
  ***********
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
  ***********
 Package rerunfilecheck Info: File `writeup.out' has not changed.
-(rerunfilecheck)             Checksum: F059B5059D8E1DF7612886479BF11E7A;5228.
+(rerunfilecheck)             Checksum: 06276FFCC0791A3CE9B03DFEC64ED71D;5039.
 Package logreq Info: Writing requests to 'writeup.run.xml'.
 \openout1 = `writeup.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 38189 strings out of 474222
- 744086 string characters out of 5748733
- 1974975 words of memory out of 5000000
- 59643 multiletter control sequences out of 15000+600000
+ 38294 strings out of 474222
+ 748862 string characters out of 5748733
+ 1973975 words of memory out of 5000000
+ 59737 multiletter control sequences out of 15000+600000
  633903 words of font info for 80 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 109i,17n,117p,1941b,1539s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 109i,17n,117p,1949b,1539s stack positions out of 10000i,1000n,20000p,200000b,200000s
 </usr/share/texmf/fonts/type1/public/lm/lmbx10.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx12.pfb></usr/share/texmf/fonts/type1/public/lm/lmbx8.pfb></usr/share/texmf/fonts/type1/public/lm/lmcsc10.pfb></usr/share/texmf/fonts/type1/public/lm/lmex10.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi12.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi6.pfb></usr/share/texmf/fonts/type1/public/lm/lmmi8.pfb></usr/share/texmf/fonts/type1/public/lm/lmr10.pfb></usr/share/texmf/fonts/type1/public/lm/lmr12.pfb></usr/share/texmf/fonts/type1/public/lm/lmr17.pfb></usr/share/texmf/fonts/type1/public/lm/lmr6.pfb></usr/share/texmf/fonts/type1/public/lm/lmr8.pfb></usr/share/texmf/fonts/type1/public/lm/lmri12.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy10.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy6.pfb></usr/share/texmf/fonts/type1/public/lm/lmsy8.pfb></usr/share/texmf/fonts/type1/public/lm/lmtt12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/symbols/msbm10.pfb>
-Output written on writeup.pdf (36 pages, 1706587 bytes).
+Output written on writeup.pdf (41 pages, 2362358 bytes).
 PDF statistics:
- 689 PDF objects out of 1000 (max. 8388607)
- 559 compressed objects within 6 object streams
- 126 named destinations out of 1000 (max. 500000)
- 387 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 755 PDF objects out of 1000 (max. 8388607)
+ 592 compressed objects within 6 object streams
+ 136 named destinations out of 1000 (max. 500000)
+ 436 words of extra memory for PDF output out of 10000 (max. 10000000)
 
